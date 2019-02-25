@@ -9,7 +9,9 @@ node{
         /* This builds the actual image: synonymous to
             docker build on the command line */
         steps{
-            sh 'echo "wowo"'
+            bash '''#!/bin/bash
+                 echo "hello world" 
+                    '''
         }
     }
     // stage('Test image'){
