@@ -14,7 +14,7 @@ node{
 
     stage('Login AWS'){
         GET_TOKEN = sh(
-            script: "sudo aws ecr get-login --no-include-email",
+            script: "sudo aws ecr get-login --no-include-email --region us-east-1",
             returnStatus: true
             ) == 0
         LOGIN = sh(
