@@ -9,7 +9,7 @@ node{
     stage('Build Image'){
         /* This builds the actual image: synonymous to
             docker build on the command line */
-        app = docker.build("h4sh3m784/ECS-IOT-POC")
+        app = docker.build("h4sh3m784/ecs-iot-poc")
     }
     stage('Test image'){
         /* Ideally, we would run a test framework against our image */
