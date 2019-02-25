@@ -9,7 +9,7 @@ node{
         /* This builds the actual image: synonymous to
             docker build on the command line */
             app = docker.build("jenkins-demo")
-            var="aws --version"
+            var="$(aws --version)"
             echo "$var"
     }
 
