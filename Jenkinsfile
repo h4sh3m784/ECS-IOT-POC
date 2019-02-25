@@ -8,12 +8,14 @@ node{
     stage('Build Image'){
         /* This builds the actual image: synonymous to
             docker build on the command line */
-            app = docker.build("jenkins-demo")
-            var="${aws --version}"
-            echo "$var"
+            app = docker.build("jenkins-demo")            
     }
-
-    stage('Test Image'){
-        echo "Image is build!"   
+    
+    stage('Push Image'){
+        LOGIN = sh(
+            script: "aws --version",
+            returnStatus: true) == 0
+        )
+        echo "${LOGIN}"
     }
 }
