@@ -7,13 +7,15 @@ node{
     }
     stage('Build Image'){
         /* This builds the actual image: synonymous to
-            docker build on the command line */ 
-        app = docker.build("h4sh3m784/ecs-iot-poc")
-    }
-    stage('Test image'){
-        /* Ideally, we would run a test framework against our image */
-        app.inside{
-            sh 'echo "Tests passed"'
+            docker build on the command line */
+        steps{
+            sh 'echo "wowo"'
         }
     }
+    // stage('Test image'){
+    //     /* Ideally, we would run a test framework against our image */
+    //     app.inside{
+    //         sh 'echo "Tests passed"'
+    //     }
+    // }
 }
