@@ -8,9 +8,7 @@ node{
     stage('Build Image'){
         /* This builds the actual image: synonymous to
             docker build on the command line */
-            bash '''#!/bin/bash
-                 echo "hello world" 
-                    '''
+            echo "hello world!"
     }
     // stage('Test image'){
     //     /* Ideally, we would run a test framework against our image */
