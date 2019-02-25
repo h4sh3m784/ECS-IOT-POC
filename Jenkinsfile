@@ -11,12 +11,12 @@ node{
             app = docker.build("jenkins-demo")            
     }
 
-    
+
     stage('Push Image'){
         LOGIN = sh(
             script: "aws --version",
-            returnStatus: true) == 0
-        )
+            returnStatus: true
+            ) == 0
         echo "${LOGIN}"
     }
 }
