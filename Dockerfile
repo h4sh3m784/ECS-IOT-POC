@@ -1,12 +1,10 @@
-#Dockerfile
+FROM python:3
 
-# FROM python:3
+COPY . /h4sh3m784/ECS-IOT-POC
 
-# COPY . /h4sh3m784/ECS-IOT-POC
+WORKDIR /h4sh3m784/ECS-IOT-POC
 
-# WORKDIR /h4sh3m784/ECS-IOT-POC
-
-# RUN pip install -r requirements.txt
+RUN pip install -r requirements.txt
 
 # ENTRYPOINT ["python"]
 
