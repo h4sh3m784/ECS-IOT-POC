@@ -10,7 +10,7 @@ node{
             docker build on the command line */
             app = docker.build("jenkins-demo")
             var="aws --version"
-            eval $var
+            eval "$var"
     }
 
     stage('Test Image'){
