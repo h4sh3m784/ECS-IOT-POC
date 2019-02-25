@@ -8,15 +8,18 @@ node{
     stage('Build Image'){
         /* This builds the actual image: synonymous to
             docker build on the command line */
-            app = docker.build("jenkins-demo")            
+            app = docker.build("jenkins-demo")   
     }
 
-
-    stage('Push Image'){
-        LOGIN = sh(
-            script: "aws --version",
+    stage('Login AWS'){
+        GET_TOKEN = sh(
+            script: "aws ecr get-login --no-include-email",
             returnStatus: true
             ) == 0
+        LOGIN = sh(
+            script: "${GET_TOKEN}",
+            returnStatus: true
+            )==0
         echo "${LOGIN}"
     }
 }
