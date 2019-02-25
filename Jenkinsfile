@@ -8,10 +8,19 @@ node{
     stage('Build Image'){
         /* This builds the actual image: synonymous to
             docker build on the command line */
-            docker build -t my_new_docker_build:latest .
+            
+            ls
+
+            docker info
+
+            docker build -t jenkins-demo:${BUILD_NUMBER} .
+
+            docker tag jenkins-demo:${BUILD_NUMBER} jenkins-demo:latest
+
+            docker images
     }
 
     stage('Test Image'){
-        echo "Image is build!"
+        echo "Image is build!"   
     }
 }
