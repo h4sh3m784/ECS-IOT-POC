@@ -1,0 +1,15 @@
+Resources:
+  WebInterfaceTask:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Cpu: "256"
+      Memory: "512"
+      NetworkMode: "awsvpc"
+      ExecutionRoleArn: "arn:aws:iam::740976047420:role/ecsTaskExecutionRole"
+      TaskRoleArn: "arn:aws:iam::740976047420:role/ecsTaskExecutionRole"
+      RequiresCompatibilities:
+      - "FARGATE"
+      ContainerDefinitions:
+        - Name: "my-web-interface-task"
+          Image: "740976047420.dkr.ecr.us-east-1.amazonaws.com/my-web-interface:latest"
+          Memory: "500"
