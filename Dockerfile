@@ -12,4 +12,4 @@ ENTRYPOINT ["python"]
 
 CMD ["script.py"]
 
-CMD ["app.py"]
+# CMD ["app.py"]
