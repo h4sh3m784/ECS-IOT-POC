@@ -10,4 +10,6 @@ USER root
 
 ENTRYPOINT ["python"]
 
+CMD ["script.py"]
+
 CMD ["app.py"]
