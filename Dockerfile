@@ -8,7 +8,7 @@ RUN pip install -r requirements.txt
 
 USER root
 
-# ENTRYPOINT ["python"]
+ENTRYPOINT ["python"]
 
-CMD ["python script.py"]
-CMD ["python app.py"]
+CMD ["script.py"]
+CMD ["app.py"]
