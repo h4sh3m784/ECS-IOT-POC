@@ -12,19 +12,19 @@ host = "a29zo009haxq0r-ats.iot.us-east-1.amazonaws.com"
 rootCAPath = "root-CA.crt"
 port = 443
 
-myAWSIoTMQTTClient = AWSIoTMQTTClient(str(uuid.uuid4()), useWebsocket=True)
-myAWSIoTMQTTClient.configureEndpoint(host,port)
-myAWSIoTMQTTClient.configureCredentials(rootCAPath) 
-myAWSIoTMQTTClient.configureAutoReconnectBackoffTime(1,32,20)
-myAWSIoTMQTTClient.configureOfflinePublishQueueing(-1)
-myAWSIoTMQTTClient.configureDrainingFrequency(2)
-myAWSIoTMQTTClient.configureConnectDisconnectTimeout(25)
-myAWSIoTMQTTClient.configureMQTTOperationTimeout(5)
-myAWSIoTMQTTClient.connect()
 
 #Route
 @app.route('/device/<DeviceId>', methods=['GET', 'POST'])
 def PublishToIoT(DeviceId):
+    myAWSIoTMQTTClient = AWSIoTMQTTClient(str(uuid.uuid4()), useWebsocket=True)
+    myAWSIoTMQTTClient.configureEndpoint(host,port)
+    myAWSIoTMQTTClient.configureCredentials(rootCAPath) 
+    myAWSIoTMQTTClient.configureAutoReconnectBackoffTime(1,32,20)
+    myAWSIoTMQTTClient.configureOfflinePublishQueueing(-1)
+    myAWSIoTMQTTClient.configureDrainingFrequency(2)
+    myAWSIoTMQTTClient.configureConnectDisconnectTimeout(25)
+    myAWSIoTMQTTClient.configureMQTTOperationTimeout(5)
+    myAWSIoTMQTTClient.connect()
     data = {}
     if request.method == 'GET':
          data = {"status": "GET"}
