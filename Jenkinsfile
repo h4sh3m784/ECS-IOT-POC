@@ -12,7 +12,7 @@ node{
             app = docker.build("jenkins-demo")   
     }
     
-    stage('Login AWS'){
+    stage('Push To AWS Repo'){
         
         GET_TOKEN = sh(
             script: "HOME=/home/ubuntu && env && sudo env && sudo aws ecr get-login --no-include-email --region us-east-1 --debug",
@@ -26,7 +26,7 @@ node{
         LOGIN_RESULT = sh("sudo ${LOGIN_WITH_TOKEN}")
         echo "Logged in.."
         
-        sh("docker tag jenkins-demo 740976047420.dkr.ecr.us-east-1.amazonaws.com/my-web-interface")
-        sh("docker push 740976047420.dkr.ecr.us-east-1.amazonaws.com/my-web-interface")
+        sh("sudo docker tag jenkins-demo 740976047420.dkr.ecr.us-east-1.amazonaws.com/my-web-interface")
+        sh("sudo docker push 740976047420.dkr.ecr.us-east-1.amazonaws.com/my-web-interface")
     }
 }
