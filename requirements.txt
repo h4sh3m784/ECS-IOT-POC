@@ -1,2 +1,3 @@
+AWSIoTPythonSDK
 flask
 flask_restful
