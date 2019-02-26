@@ -10,4 +10,4 @@ url = ip + "$" + relative_URI
 
 output = subprocess.check_output(['curl', url])
 
-print(output)
+subprocess.call(['echo', output])
