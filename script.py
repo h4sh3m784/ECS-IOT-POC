@@ -12,14 +12,8 @@ print(relative_URI)
 print(url)
 
 output = subprocess.check_output(['curl', url])
-
-print(output)
-
 data = json.loads(output)
 
-os.environ["AWS_ACCESS_KEY_ID"] = data['AccessKeyId']
-print(data['AccessKeyId'])
-os.environ["AWS_SECRET_ACCESS_KEY"] = data['SecretAccessKey']
-print(data['SecretAccessKey'])
-os.environ["AWS_SESSION_TOKEN"] = data['Token']
-print(data['Token'])
+subprocess.call(['export', 'AWS_ACCESS_KEY_ID=', data['AccessKeyId']])
+subprocess.call(['export', 'AWS_SECRET_ACCESS_KEY=', data['SecretAccessKey']])
+subprocess.call(['export', 'AWS_SESSION_TOKEN=', data['Token']])
