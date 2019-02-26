@@ -1,4 +1,4 @@
-FROM python:3
+FROM ubuntu:15.04
 
 COPY . /h4sh3m784/ECS-IOT-POC
 
