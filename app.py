@@ -12,7 +12,6 @@ host = "a29zo009haxq0r-ats.iot.us-east-1.amazonaws.com"
 rootCAPath = "root-CA.crt"
 port = 443
 
-
 #Route
 @app.route('/device/<DeviceId>', methods=['GET', 'POST'])
 def PublishToIoT(DeviceId):
@@ -36,4 +35,4 @@ def PublishToIoT(DeviceId):
     return data
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=True, host='0.0.0.0', port=80)
