@@ -15,7 +15,13 @@ port = 443
 #Route
 @app.route('/device/<DeviceId>', methods=['GET', 'POST'])
 def PublishToIoT(DeviceId):
+
+    aws_access_key_id = os.environ['AWS_ACCESS_KEY_ID']
+    aws_secret_access_key = os.environ['AWS_SECRET_ACCESS_KEY']
+    aws_obtained_token = os.environ['AWS_SESSION_TOKEN']
+
     myAWSIoTMQTTClient = AWSIoTMQTTClient(str(uuid.uuid4()), useWebsocket=True)
+    myAWSIoTMQTTClient.configureIAMCredentials(aws_access_key_id, aws_secret_access_key, aws_obtained_token)
     myAWSIoTMQTTClient.configureEndpoint(host,port)
     myAWSIoTMQTTClient.configureCredentials(rootCAPath) 
     myAWSIoTMQTTClient.configureAutoReconnectBackoffTime(1,32,20)
