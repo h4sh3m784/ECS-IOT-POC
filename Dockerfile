@@ -6,6 +6,8 @@ WORKDIR /h4sh3m784/ECS-IOT-POC
 
 RUN pip install -r requirements.txt
 
+USER root
+
 ENTRYPOINT ["python"]
 
 CMD ["app.py"]

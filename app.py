@@ -8,11 +8,10 @@ import os
 
 app = Flask(__name__)
 
-
 #Route
 @app.route('/device/<DeviceId>', methods=['GET', 'POST'])
 def PublishToIoT(DeviceId):
-    
+
     host = "a29zo009haxq0r-ats.iot.us-east-1.amazonaws.com"
     rootCAPath = "root-CA.crt"
     port = 443
