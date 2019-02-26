@@ -8,7 +8,4 @@ RUN pip install -r requirements.txt
 
 USER root
 
-ENTRYPOINT ["python"]
-
-CMD ["script.py"]
-CMD ["app.py"]
+CMD ["./preconfig.sh"]
