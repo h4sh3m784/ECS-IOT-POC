@@ -1,5 +1,4 @@
-from flask import Flask, request
-from flask import jsonify
+from flask import Flask
 from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient
 
 import json
@@ -8,8 +7,6 @@ import os
 import subprocess
 import time
 
-#Tokens need to be refreshed every X amount of hour
-#So you need to run this script again..
 relative_URI = os.environ['AWS_CONTAINER_CREDENTIALS_RELATIVE_URI']
 
 url = "169.254.170.2" + relative_URI
@@ -29,8 +26,6 @@ rootCAPath = "root-CA.crt"
 sub_topic = "WebInterface/iot/sub"
 port = 443
 
-data = {}
-
 myAWSIoTMQTTClient = AWSIoTMQTTClient(str(uuid.uuid4()), useWebsocket=True)
 myAWSIoTMQTTClient.configureEndpoint(host,port)
 myAWSIoTMQTTClient.configureCredentials(rootCAPath)
@@ -41,42 +36,49 @@ myAWSIoTMQTTClient.configureConnectDisconnectTimeout(25)
 myAWSIoTMQTTClient.configureMQTTOperationTimeout(5)
 myAWSIoTMQTTClient.connect()
 
-def Callback(client, userdata, message):
+
+def callback(client, userdata, message):
     print("Received a new message: ")
     print(message.payload)
     print("from topic: ")
     print(message.topic)
     print("--------------\n\n")
     data['Message'] = message
-    Callback.has_been_called = True
+    callback.has_been_called = True
 
-Callback.has_been_called = False
 
-myAWSIoTMQTTClient.subscribe(sub_topic, 0, Callback)
+callback.has_been_called = False
 
-#Route
-@app.route('/device/<DeviceId>', methods=['GET', 'POST'])
-def PublishToIoT(DeviceId):
+myAWSIoTMQTTClient.subscribe(sub_topic, 0, callback)
 
-    pub_topic = "Webinterface/iot/pub/" + DeviceId
 
-    global data
+@app.route('/device/<device_id>', methods=['GET', 'POST'])
+def publish_to_iot(device_id):
 
-    if request.method == 'GET':
-         data = {"status": "GET"}
+    pub_topic = "Webinterface/iot/pub/" + device_id
 
-    data = jsonify(data)
-    
-    message = {}
-    message['DeviceId'] = DeviceId
-    message = json.dumps(message)
+    response = {"Status": "Complete"}
 
-    myAWSIoTMQTTClient.publish(pub_topic, message,0)
+    pub_message = dict()
+    pub_message['DeviceId'] = device_id
+    pub_message = json.dumps(pub_message)
 
-    while not Callback.has_been_called:
-        time.sleep(0.1)
+    myAWSIoTMQTTClient.publish(pub_topic, pub_message, 0)
 
-    return data
+    time_out = False
+    counter = 0
+
+    while not callback.has_been_called and time_out:
+        counter += 1
+        if counter >= 10:
+            time_out = True
+            response = {"Status": "Time-out"}
+        time.sleep(1)
+
+    response = json.dumps(response)
+
+    return response
+
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=80)
