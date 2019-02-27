@@ -47,7 +47,7 @@ def callback(client, userdata, message):
     print("--------------\n\n")
 
     global response
-    response['Response Message'] = message
+    response = {"Status": "SUCH GOOD MEME"}
 
     callback.has_been_called = True
 
