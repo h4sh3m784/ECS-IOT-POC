@@ -10,5 +10,9 @@
 #if example.has_been_called:
 #   print("foo bar")
 
-x = False
-y = False
+import time
+
+while not False and False:
+    time.sleep(1)
+    print("kek")
+

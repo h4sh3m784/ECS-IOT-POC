@@ -26,7 +26,7 @@ rootCAPath = "root-CA.crt"
 sub_topic = "WebInterface/iot/sub"
 port = 443
 
-response = {"Status": "200"}
+response = dict()
 
 myAWSIoTMQTTClient = AWSIoTMQTTClient(str(uuid.uuid4()), useWebsocket=True)
 myAWSIoTMQTTClient.configureEndpoint(host,port)
@@ -47,7 +47,7 @@ def callback(client, userdata, message):
     print("--------------\n\n")
 
     global response
-    response = {"Status": "SUCH GOOD MEME"}
+    response['Status'] = message
 
     callback.has_been_called = True
 
@@ -73,7 +73,7 @@ def publish_to_iot(device_id):
 
     global response
 
-    while not callback.has_been_called and time_out:
+    while not callback.has_been_called and not time_out:
         counter += 1
         if counter >= 10:
             time_out = True
@@ -81,10 +81,6 @@ def publish_to_iot(device_id):
         time.sleep(1)
 
     response = json.dumps(response)
-
-    print("---callback log---")
-    print(time_out)
-    print(callback.has_been_called)
 
     return response
 
