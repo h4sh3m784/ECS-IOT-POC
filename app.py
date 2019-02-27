@@ -26,6 +26,8 @@ rootCAPath = "root-CA.crt"
 sub_topic = "WebInterface/iot/sub"
 port = 443
 
+response = dict()
+
 myAWSIoTMQTTClient = AWSIoTMQTTClient(str(uuid.uuid4()), useWebsocket=True)
 myAWSIoTMQTTClient.configureEndpoint(host,port)
 myAWSIoTMQTTClient.configureCredentials(rootCAPath)
@@ -43,7 +45,10 @@ def callback(client, userdata, message):
     print("from topic: ")
     print(message.topic)
     print("--------------\n\n")
-    data['Message'] = message
+
+    global response
+    response['Response Message'] = message
+
     callback.has_been_called = True
 
 
@@ -57,8 +62,6 @@ def publish_to_iot(device_id):
 
     pub_topic = "Webinterface/iot/pub/" + device_id
 
-    response = {"Status": "Complete"}
-
     pub_message = dict()
     pub_message['DeviceId'] = device_id
     pub_message = json.dumps(pub_message)
@@ -67,6 +70,8 @@ def publish_to_iot(device_id):
 
     time_out = False
     counter = 0
+
+    global response
 
     while not callback.has_been_called and time_out:
         counter += 1
