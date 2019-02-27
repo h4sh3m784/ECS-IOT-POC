@@ -1,7 +1,7 @@
 def example():
     example.has_been_called = True
     pass
-example.has_been_called = False
+#example.has_been_called = False
 
 
 # example()

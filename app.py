@@ -50,6 +50,8 @@ def Callback(client, userdata, message):
     data['Message'] = message
     Callback.has_been_called = True
 
+Callback.has_been_called = False
+
 myAWSIoTMQTTClient.subscribe(sub_topic, 0, Callback)
 
 #Route
