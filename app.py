@@ -40,15 +40,8 @@ myAWSIoTMQTTClient.connect()
 
 
 def callback(client, userdata, message):
-    print("Received a new message: ")
-    print(message.payload)
-    print("from topic: ")
-    print(message.topic)
-    print("--------------\n\n")
-
     global response
-    response['Status'] = message
-
+    response = json.loads(message.payload)
     callback.has_been_called = True
 
 
