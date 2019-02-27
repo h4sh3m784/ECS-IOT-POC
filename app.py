@@ -26,7 +26,7 @@ rootCAPath = "root-CA.crt"
 sub_topic = "WebInterface/iot/sub"
 port = 443
 
-response = dict()
+response = {"Status": "200"}
 
 myAWSIoTMQTTClient = AWSIoTMQTTClient(str(uuid.uuid4()), useWebsocket=True)
 myAWSIoTMQTTClient.configureEndpoint(host,port)
