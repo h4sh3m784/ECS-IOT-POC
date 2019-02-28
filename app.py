@@ -23,7 +23,7 @@ app = Flask(__name__)
 
 host = "a29zo009haxq0r-ats.iot.us-east-1.amazonaws.com"
 rootCAPath = "root-CA.crt"
-sub_topic = "WebInterface/iot/sub"
+sub_topic = "api/iot/sub"
 port = 443
 
 response = dict()
@@ -52,7 +52,7 @@ myAWSIoTMQTTClient.subscribe(sub_topic, 0, callback)
 @app.route('/device/<device_id>', methods=['GET', 'POST'])
 def publish_to_iot(device_id):
 
-    pub_topic = "Webinterface/iot/pub/" + device_id
+    pub_topic = "api/iot/pub/" + device_id
 
     pub_message = dict()
     pub_message['DeviceId'] = device_id
@@ -61,7 +61,7 @@ def publish_to_iot(device_id):
     myAWSIoTMQTTClient.publish(pub_topic, pub_message, 0)
 
     time_out = False
-    counter = 0
+    counter = 0 
 
     global response
 
