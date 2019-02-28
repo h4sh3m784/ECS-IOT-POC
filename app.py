@@ -10,6 +10,7 @@ import time
 
 import logging
 import os
+import asyncio
 import sys
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
@@ -51,11 +52,13 @@ myAWSIoTMQTTClient.connect()
 counter = 1
 
 myDict = {}
+myEventDict = {}
 
 def callback(client, userdata, message):
     logger.debug("Received response on " + str(userdata) + " message " + str(message))
     response = json.loads(message.payload)
     myDict[response['RequestId']] = response
+    myEventDict[response['RequestId']].set()
 
 
 
@@ -92,18 +95,12 @@ def publish_to_iot(device_id):
 
     waitCounter = 0
 
-    while not myDict.keys().__contains__(thisRequestId) and not time_out:
-        logger.debug("waiting for response " + str(waitCounter))
-        waitCounter += 1
-        if waitCounter >= 10:
-            logger.debug("timeout")
-            time_out = True
-            response = {"Status": "Time-out"}
-        time.sleep(1)
+    event = asyncio.Event()
+    myEventDict[thisRequestId] = event
+    asyncio.wait_for(event.wait(),timeout=10)
 
-    if not time_out:
-        logger.debug("Received the response..")
-        response = myDict[thisRequestId]
+    logger.debug("Received the response..")
+    response = myDict[thisRequestId]
 
     response = json.dumps(response)
 
