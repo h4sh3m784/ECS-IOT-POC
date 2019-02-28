@@ -29,6 +29,6 @@ node{
     }
 
     stage("Start ECS-Task"){
-        sh("HOME=/home/ubuntu && sudo aws ecs run-task --cluster my-cluster --task-definition logging --network-configuration 'awsvpcConfiguration={subnets=['subnet-93eafad8'],securityGroups=['loggin-8859'],assignPublicIp='ENABLED'}'")
+        sh("HOME=/home/ubuntu && sudo aws ecs run-task --cluster my-cluster --task-definition logging --network-configuration 'awsvpcConfiguration={subnets=['subnet-93eafad8'],securityGroups=['sg-8859'],assignPublicIp='ENABLED'}'")
     }
 }
