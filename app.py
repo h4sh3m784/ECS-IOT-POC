@@ -97,7 +97,7 @@ def publish_to_iot(device_id):
 
     event = asyncio.Event()
     myEventDict[thisRequestId] = event
-    asyncio.wait_for(event.wait(),timeout=10)
+    event.wait()
 
     logger.debug("Received the response..")
     response = myDict[thisRequestId]
