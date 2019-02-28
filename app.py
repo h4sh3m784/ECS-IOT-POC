@@ -55,9 +55,12 @@ def publish_to_iot(device_id):
 
     pub_topic = "api/iot/pub/" + device_id
 
+    data = request.data
+    dataDic = json.loads(data)
+
     pub_message = dict()
     pub_message['DeviceId'] = device_id
-    pub_message['Message'] = request.form['Message']
+    pub_message['Message'] = dataDic['Message']
     pub_message = json.dumps(pub_message)
 
     myAWSIoTMQTTClient.publish(pub_topic, pub_message, 0)
