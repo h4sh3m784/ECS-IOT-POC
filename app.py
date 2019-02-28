@@ -10,7 +10,7 @@ import time
 
 import logging
 import os
-import asyncio
+import threading
 import sys
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
@@ -95,9 +95,10 @@ def publish_to_iot(device_id):
 
     waitCounter = 0
 
-    event = asyncio.Event()
+    # event = threading.Event()
+    event = threading.Event()
     myEventDict[thisRequestId] = event
-    event.wait()
+    event.wait(10)
 
     logger.debug("Received the response..")
     response = myDict[thisRequestId]
