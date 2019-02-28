@@ -29,6 +29,6 @@ node{
     }
 
     stage("Start ECS-Task"){
-        sh("HOME=/home/ubuntu && sudo aws ecs run-task --cluster my-cluster --task-definition logging --region us-east-1 --launch-type FARGATE --network-configuration 'awsvpcConfiguration={subnets='subnet-93eafad8',securityGroups='sg-0891eafe4dbcc756a',assignPublicIp='ENABLED'}'")
+        sh("sudo aws ecs run-task --cluster my-cluster --task-definition logging --region us-east-1 --launch-type FARGATE --network-configuration 'awsvpcConfiguration={subnets='subnet-93eafad8',securityGroups='sg-0891eafe4dbcc756a',assignPublicIp='ENABLED'}'")
     }
 }
