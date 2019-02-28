@@ -10,6 +10,9 @@ import time
 
 import logging
 import os
+import sys
+
+logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
@@ -103,7 +106,7 @@ def publish_to_iot(device_id):
         response = myDict[thisRequestId]
 
     response = json.dumps(response)
-    
+
     return response
 
 
