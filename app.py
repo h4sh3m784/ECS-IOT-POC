@@ -45,7 +45,7 @@ myAWSIoTMQTTClient.configureConnectDisconnectTimeout(25)
 myAWSIoTMQTTClient.configureMQTTOperationTimeout(5)
 myAWSIoTMQTTClient.connect()
 
-counter = 0
+counter = 1
 
 myDict = {}
 
@@ -87,7 +87,7 @@ def publish_to_iot(device_id):
     logger.debug("Waiting for " + thisRequestId)
 
     waitCounter = 0
-    
+
     while not myDict.keys().__contains__(thisRequestId) and not time_out:
         logger.debug("waiting for response " + str(waitCounter))
         waitCounter += 1
