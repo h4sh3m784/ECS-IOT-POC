@@ -1,4 +1,5 @@
 from flask import Flask
+from flask import request
 from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient
 
 import json
@@ -49,13 +50,14 @@ callback.has_been_called = False
 
 myAWSIoTMQTTClient.subscribe(sub_topic, 0, callback)
 
-@app.route('/device/<device_id>', methods=['GET', 'POST'])
+@app.route('/device/<device_id>', methods=['POST'])
 def publish_to_iot(device_id):
 
     pub_topic = "api/iot/pub/" + device_id
 
     pub_message = dict()
     pub_message['DeviceId'] = device_id
+    pub_message['Message'] = request.form['Message']
     pub_message = json.dumps(pub_message)
 
     myAWSIoTMQTTClient.publish(pub_topic, pub_message, 0)
