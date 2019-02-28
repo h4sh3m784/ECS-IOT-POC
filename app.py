@@ -70,6 +70,7 @@ def publish_to_iot(device_id):
     data = request.data
     dataDic = json.loads(data)
 
+    global counter  
     thisRequestId = str(counter)
     counter = counter + 1
     pub_message = dict()
