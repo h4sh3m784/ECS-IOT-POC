@@ -8,6 +8,12 @@ import os
 import subprocess
 import time
 
+import logging
+import os
+
+logger = logging.getLogger()
+logger.setLevel(logging.DEBUG)
+
 relative_URI = os.environ['AWS_CONTAINER_CREDENTIALS_RELATIVE_URI']
 
 url = "169.254.170.2" + relative_URI
@@ -39,11 +45,15 @@ myAWSIoTMQTTClient.configureConnectDisconnectTimeout(25)
 myAWSIoTMQTTClient.configureMQTTOperationTimeout(5)
 myAWSIoTMQTTClient.connect()
 
+counter = 0
+
+myDict = {}
 
 def callback(client, userdata, message):
-    global response
+    logger.debug("Received response on " + str(userdata) + " message " + str(message))
     response = json.loads(message.payload)
-    callback.has_been_called = True
+    myDict[response['RequestId']] = response
+
 
 
 callback.has_been_called = False
@@ -53,32 +63,44 @@ myAWSIoTMQTTClient.subscribe(sub_topic, 0, callback)
 @app.route('/device/<device_id>', methods=['POST'])
 def publish_to_iot(device_id):
 
+    logger.debug("Request to publish to " + device_id)
+
     pub_topic = "api/iot/pub/" + device_id
 
     data = request.data
     dataDic = json.loads(data)
 
+    thisRequestId = str(counter)
+    counter = counter + 1
     pub_message = dict()
     pub_message['DeviceId'] = device_id
     pub_message['Message'] = dataDic['Message']
+    pub_message['RequestId'] = thisRequestId
     pub_message = json.dumps(pub_message)
+
+    logger.debug("Publishing message: " + json.dumps(pub_message))
 
     myAWSIoTMQTTClient.publish(pub_topic, pub_message, 0)
 
     time_out = False
-    counter = 0 
 
-    global response
+    logger.debug("Waiting for " + thisRequestId)
 
-    while not callback.has_been_called and not time_out:
-        counter += 1
-        if counter >= 10:
+    waitCounter = 0
+    
+    while not myDict.keys().__contains__(thisRequestId) and not time_out:
+        logger.debug("waiting for response " + str(waitCounter))
+        waitCounter += 1
+        if waitCounter >= 10:
+            logger.debug("timeout")
             time_out = True
             response = {"Status": "Time-out"}
         time.sleep(1)
 
-    response = json.dumps(response)
-
+    if not time_out:
+        logger.debug("Received the response..")
+        response = myDict[thisRequestId]
+    
     return response
 
 
