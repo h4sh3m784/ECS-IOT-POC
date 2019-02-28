@@ -101,6 +101,8 @@ def publish_to_iot(device_id):
     if not time_out:
         logger.debug("Received the response..")
         response = myDict[thisRequestId]
+
+    response = json.dumps(response)
     
     return response
 
