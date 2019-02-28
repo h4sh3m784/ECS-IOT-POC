@@ -23,9 +23,9 @@ Resources:
       TopicRulePayload:
         RuleDisabled: "false"
         Sql: >-
-          SELECT DeviceId FROM 'Webinterface/iot/pub/#'
+          SELECT DeviceId FROM 'api/iot/pub/#'
         Actions:
           -
             Republish:
-              Topic: "WebInterface/iot/sub"
+              Topic: "api/iot/sub"
               RoleArn: "arn:aws:iam::740976047420:role/service-role/WebInterface-Subscribe"

@@ -47,6 +47,7 @@ def callback(client, userdata, message):
 
 callback.has_been_called = False
 
+myAWSIoTMQTTClient.subscribe(sub_topic, 0, callback)
 
 @app.route('/device/<device_id>', methods=['GET', 'POST'])
 def publish_to_iot(device_id):
@@ -56,8 +57,6 @@ def publish_to_iot(device_id):
     pub_message = dict()
     pub_message['DeviceId'] = device_id
     pub_message = json.dumps(pub_message)
-
-    myAWSIoTMQTTClient.subscribe(sub_topic, 0, callback)
 
     myAWSIoTMQTTClient.publish(pub_topic, pub_message, 0)
 
