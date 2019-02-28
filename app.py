@@ -7,6 +7,7 @@ import uuid
 import os
 import subprocess
 import time
+import socket
 
 import logging
 import os
@@ -34,7 +35,6 @@ app = Flask(__name__)
 
 host = "a29zo009haxq0r-ats.iot.us-east-1.amazonaws.com"
 rootCAPath = "root-CA.crt"
-sub_topic = "api/iot/sub"
 port = 443
 
 response = dict()
@@ -54,34 +54,22 @@ counter = 1
 myDict = {}
 myEventDict = {}
 
-def callback(client, userdata, message):
-    logger.debug("Received response on " + str(userdata) + " message " + str(message))
-    response = json.loads(message.payload)
-    myDict[response['RequestId']] = response
-    myEventDict[response['RequestId']].set()
-
-
-
-callback.has_been_called = False
-
-myAWSIoTMQTTClient.subscribe(sub_topic, 0, callback)
-
-@app.route('/device/<device_id>', methods=['POST'])
-def publish_to_iot(device_id):
+@app.route('/request-device/<device_id>', methods=['POST'])
+def request_device(device_id):
 
     logger.debug("Request to publish to " + device_id)
 
     pub_topic = "api/iot/pub/" + device_id
 
-    data = request.data
-    dataDic = json.loads(data)
+    request_body = json.loads(request.data)
 
     global counter  
     thisRequestId = str(counter)
     counter = counter + 1
     pub_message = dict()
     pub_message['DeviceId'] = device_id
-    pub_message['Message'] = dataDic['Message']
+    pub_message['Message'] = request_body['Message']
+    pub_message['EndPoint'] = socket.gethostname() + "/response-device/" + device_id
     pub_message['RequestId'] = thisRequestId
     pub_message = json.dumps(pub_message)
 
@@ -95,7 +83,6 @@ def publish_to_iot(device_id):
 
     waitCounter = 0
 
-    # event = threading.Event()
     event = threading.Event()
     myEventDict[thisRequestId] = event
     event.wait(10)
@@ -107,6 +94,15 @@ def publish_to_iot(device_id):
 
     return response
 
+@app.route('/response-device/<device_id>', methods=['POST'])
+def response_device(device_id):
+
+    response = json.loads(request.data)
+    logger.debug(response)
+    myDict[response['RequestId']] = response
+    myEventDict[response['RequestId']].set()
+    
+    return json.loads('{"Status: "200"')
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=80)
