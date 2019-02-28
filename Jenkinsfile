@@ -29,6 +29,8 @@ node{
     }
 
     stage("Start ECS-Task"){
-        sh("HOME=/home/ubuntu && sudo aws ecs run-task --cluster my-cluster --task-definition logging --launch-type 'FARGATE' --network-configuration 'awsvpcConfiguration={subnets=['subnet-93eafad8'],assignPublicIp='ENABLED'}'")
+        RUN =
+        script: sh"HOME=/home/ubuntu && sudo aws ecs run-task --cluster my-cluster --task-definition logging --launch-type 'FARGATE' --network-configuration 'awsvpcConfiguration={subnets=['subnet-93eafad8'],assignPublicIp='ENABLED'}'"
+        )
     }
 }
