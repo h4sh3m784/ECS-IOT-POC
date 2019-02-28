@@ -29,8 +29,6 @@ node{
     }
 
     stage("Start ECS-Task"){
-
-        // aws ecs run-task --launch-type FARGATE --cluster ${cluster_name} --task-definition production_db_migrate --network-configuration "awsvpcConfiguration={subnets=https://forums.aws.amazon.com/,securityGroups=https://forums.aws.amazon.com/}"
-        sh("HOME=/home/ubuntu && aws ecs run-task --cluster my-cluster --task-definition logging --launch-type 'FARGATE' --network-configuration 'awsvpcConfiguration={subnets='subnet-93eafad8'}'")
+        sh("HOME=/home/ubuntu && sudo aws ecs run-task --cluster my-cluster --task-definition logging --launch-type FARGATE --network-configuration 'awsvpcConfiguration={subnets=['subnet-93eafad8'],securityGroups=['sg-login-8859'],assignPublicIp='ENABLED'}'")
     }
 }
