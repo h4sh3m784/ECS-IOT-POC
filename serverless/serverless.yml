@@ -26,15 +26,15 @@ Resources:
           Image: "740976047420.dkr.ecr.us-east-1.amazonaws.com/my-web-interface:latest"
           Memory: "500"
           
-  RepublishTopicRule:
+  LambdaRule:
     Type: AWS::IoT::TopicRule
     Properties:
       RuleName:
-        Ref: "WebInterfaceRepublishTopicRule"
+        Ref: "Lambda-IoT-Rule"
       TopicRulePayload:
         RuleDisabled: "false"
         Sql: >-
-          SELECT DeviceId FROM 'api/iot/pub/#'
+          SELECT * FROM 'api/iot/pub/#'
         Actions:
           -
             Republish:

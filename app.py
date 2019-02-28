@@ -4,11 +4,8 @@ from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient
 
 import json
 import uuid
-import os
 import subprocess
-import time
 import socket
-
 import logging
 import os
 import threading
@@ -17,8 +14,8 @@ import sys
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 logger = logging.getLogger()
-logger.setLevel(logging.DEBUG)
 
+#Get and Set Credentials for the docker container.
 relative_URI = os.environ['AWS_CONTAINER_CREDENTIALS_RELATIVE_URI']
 
 url = "169.254.170.2" + relative_URI
@@ -37,8 +34,6 @@ host = "a29zo009haxq0r-ats.iot.us-east-1.amazonaws.com"
 rootCAPath = "root-CA.crt"
 port = 443
 
-response = dict()
-
 myAWSIoTMQTTClient = AWSIoTMQTTClient(str(uuid.uuid4()), useWebsocket=True)
 myAWSIoTMQTTClient.configureEndpoint(host,port)
 myAWSIoTMQTTClient.configureCredentials(rootCAPath)
@@ -49,12 +44,10 @@ myAWSIoTMQTTClient.configureConnectDisconnectTimeout(25)
 myAWSIoTMQTTClient.configureMQTTOperationTimeout(5)
 myAWSIoTMQTTClient.connect()
 
-counter = 1
+response_Dict = dict()
+event_Dict = dict()
 
-myDict = {}
-myEventDict = {}
-
-@app.route('/request-device/<device_id>', methods=['POST'])
+@app.route('/device/<device_id>', methods=['POST'])
 def request_device(device_id):
 
     logger.debug("Request to publish to " + device_id)
@@ -63,44 +56,45 @@ def request_device(device_id):
 
     request_body = json.loads(request.data)
 
-    global counter  
-    thisRequestId = str(counter)
-    counter = counter + 1
+    thisRequestId = str(uuid.uuid4()) #Create new Request ID
+
+    #Create Message for publish
     pub_message = dict()
     pub_message['DeviceId'] = device_id
     pub_message['Message'] = request_body['Message']
-    pub_message['EndPoint'] = socket.gethostname() + "/response-device/" + device_id
+    pub_message['EndPoint'] = socket.gethostname() + "/lambda-response/" + device_id
     pub_message['RequestId'] = thisRequestId
-    pub_message = json.dumps(pub_message)
+    
+    pub_message = json.dumps(pub_message) #Convert JSON dict to string.
 
     logger.debug("Publishing message: " + json.dumps(pub_message))
 
-    myAWSIoTMQTTClient.publish(pub_topic, pub_message, 0)
-
-    time_out = False
+    myAWSIoTMQTTClient.publish(pub_topic, pub_message, 0) #Publish to MQTT
 
     logger.debug("Waiting for " + thisRequestId)
 
-    waitCounter = 0
+    event = threading.Event() #Start waiting thread.
 
-    event = threading.Event()
-    myEventDict[thisRequestId] = event
-    event.wait(10)
+    event_Dict[thisRequestId] = event #Save waiting event in Dict, waiting for the response.
+
+    event.wait(10) #Wait for 10 seconds before time out, or the event being set()
 
     logger.debug("Received the response..")
-    response = myDict[thisRequestId]
 
-    response = json.dumps(response)
+    response = json.dumps(response_Dict[thisRequestId])
 
     return response
 
-@app.route('/response-device/<device_id>', methods=['POST'])
+@app.route('/lambda-response/<device_id>', methods=['POST'])
 def response_device(device_id):
 
     response = json.loads(request.data)
+
     logger.debug(response)
-    myDict[response['RequestId']] = response
-    myEventDict[response['RequestId']].set()
+
+    response_Dict[response['RequestId']] = response
+
+    response_Dict[response['RequestId']].set()
     
     return json.loads('{"Status: "200"')
 
