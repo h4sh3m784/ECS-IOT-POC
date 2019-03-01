@@ -36,6 +36,7 @@ node{
             
         sh("echo ${GET_TASKS}")
         
+            //Check if a task is already running.
          if("${GET_TASKS}" == "None"){
             sh("echo 'Nothings running..'")
             sh("sudo aws ecs run-task --cluster my-cluster --task-definition logging --region us-east-1 --launch-type FARGATE --network-configuration 'awsvpcConfiguration={subnets='subnet-93eafad8',securityGroups='sg-0891eafe4dbcc756a',assignPublicIp='ENABLED'}'")
