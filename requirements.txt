@@ -1,3 +1,4 @@
 AWSIoTPythonSDK
 flask
 flask_restful
+requests

@@ -92,7 +92,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/my-ecs-iot-lambda-service/dev/1551443038227-2019-03-01T12:23:58.227Z/my-ecs-iot-lambda-service.zip"
+          "S3Key": "serverless/my-ecs-iot-lambda-service/dev/1551444951261-2019-03-01T12:55:51.261Z/my-ecs-iot-lambda-service.zip"
         },
         "FunctionName": "my-ecs-iot-lambda-service-dev-ECS",
         "Handler": "handler.lambda_handler.py",
@@ -111,14 +111,14 @@
         "IamRoleLambdaExecution"
       ]
     },
-    "ECSLambdaVersionfFUrv03EaRl7k0DoGqmBoQ4NcElzxXMppPQ9wfh0": {
+    "ECSLambdaVersion8RyfLEZbUAvobCg8s91h89ERuQqqTnRoTpitXRVE": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "ECSLambdaFunction"
         },
-        "CodeSha256": "ao0VgDRFsIqGt6iTHQN6h3zMwhCdSN0ZUM4vxXBV810="
+        "CodeSha256": "OejlXnDrSh5Q7o/2Wjn68HbiinQTEzR7e1pIOnAAgoQ="
       }
     },
     "MyRule": {
@@ -153,7 +153,7 @@
     "ECSLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "ECSLambdaVersionfFUrv03EaRl7k0DoGqmBoQ4NcElzxXMppPQ9wfh0"
+        "Ref": "ECSLambdaVersion8RyfLEZbUAvobCg8s91h89ERuQqqTnRoTpitXRVE"
       }
     }
   }
