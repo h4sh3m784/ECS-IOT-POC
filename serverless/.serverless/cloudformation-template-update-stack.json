@@ -1,0 +1,160 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "The AWS CloudFormation template for this Serverless application",
+  "Resources": {
+    "ServerlessDeploymentBucket": {
+      "Type": "AWS::S3::Bucket"
+    },
+    "ECSLogGroup": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": "/aws/lambda/my-ecs-iot-lambda-service-dev-ECS"
+      }
+    },
+    "IamRoleLambdaExecution": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                  "lambda.amazonaws.com"
+                ]
+              },
+              "Action": [
+                "sts:AssumeRole"
+              ]
+            }
+          ]
+        },
+        "Policies": [
+          {
+            "PolicyName": {
+              "Fn::Join": [
+                "-",
+                [
+                  "dev",
+                  "my-ecs-iot-lambda-service",
+                  "lambda"
+                ]
+              ]
+            },
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "logs:CreateLogStream"
+                  ],
+                  "Resource": [
+                    {
+                      "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/my-ecs-iot-lambda-service-dev-ECS:*"
+                    }
+                  ]
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "logs:PutLogEvents"
+                  ],
+                  "Resource": [
+                    {
+                      "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/my-ecs-iot-lambda-service-dev-ECS:*:*"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ],
+        "Path": "/",
+        "RoleName": {
+          "Fn::Join": [
+            "-",
+            [
+              "my-ecs-iot-lambda-service",
+              "dev",
+              "us-east-1",
+              "lambdaRole"
+            ]
+          ]
+        }
+      }
+    },
+    "ECSLambdaFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Ref": "ServerlessDeploymentBucket"
+          },
+          "S3Key": "serverless/my-ecs-iot-lambda-service/dev/1551443038227-2019-03-01T12:23:58.227Z/my-ecs-iot-lambda-service.zip"
+        },
+        "FunctionName": "my-ecs-iot-lambda-service-dev-ECS",
+        "Handler": "handler.lambda_handler.py",
+        "MemorySize": 512,
+        "Role": {
+          "Fn::GetAtt": [
+            "IamRoleLambdaExecution",
+            "Arn"
+          ]
+        },
+        "Runtime": "python3.6",
+        "Timeout": 10
+      },
+      "DependsOn": [
+        "ECSLogGroup",
+        "IamRoleLambdaExecution"
+      ]
+    },
+    "ECSLambdaVersionfFUrv03EaRl7k0DoGqmBoQ4NcElzxXMppPQ9wfh0": {
+      "Type": "AWS::Lambda::Version",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "ECSLambdaFunction"
+        },
+        "CodeSha256": "ao0VgDRFsIqGt6iTHQN6h3zMwhCdSN0ZUM4vxXBV810="
+      }
+    },
+    "MyRule": {
+      "Type": "AWS::IoT::TopicRule",
+      "Properties": {
+        "RuleName": "MyRule",
+        "TopicRulePayload": {
+          "RuleDisabled": "false",
+          "Sql": "SELECT * FROM 'api/iot/pub/#'",
+          "Actions": [
+            {
+              "Lambda": {
+                "FunctionArn": {
+                  "Fn::GetAtt": [
+                    "ECSLambdaFunction",
+                    "Arn"
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  "Outputs": {
+    "ServerlessDeploymentBucketName": {
+      "Value": {
+        "Ref": "ServerlessDeploymentBucket"
+      }
+    },
+    "ECSLambdaFunctionQualifiedArn": {
+      "Description": "Current Lambda function version",
+      "Value": {
+        "Ref": "ECSLambdaVersionfFUrv03EaRl7k0DoGqmBoQ4NcElzxXMppPQ9wfh0"
+      }
+    }
+  }
+}

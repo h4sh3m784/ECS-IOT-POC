@@ -1,4 +1,4 @@
-service: my-ecs-iot-service
+service: my-ecs-iot-lambda-service
 
 provider:
   name: aws
@@ -7,36 +7,20 @@ provider:
   timeout: 10
 
 functions:
-  MyEcsLambdaFunction:
+  ECS:
       handler: handler.lambda_handler.py
 
-# Resources:
-#   WebInterfaceTask:
-#     Type: AWS::ECS::TaskDefinition
-#     Properties:
-#       Cpu: "256"
-#       Memory: "512"
-#       NetworkMode: "awsvpc"
-#       ExecutionRoleArn: "arn:aws:iam::740976047420:role/ecsTaskExecutionRole"
-#       TaskRoleArn: "arn:aws:iam::740976047420:role/ecsTaskExecutionRole"
-#       RequiresCompatibilities:
-#       - "FARGATE"
-#       ContainerDefinitions:
-#         - Name: "my-web-interface-task"
-#           Image: "740976047420.dkr.ecr.us-east-1.amazonaws.com/my-web-interface:latest"
-#           Memory: "500"
-          
-  # LambdaRule:
-  #   Type: AWS::IoT::TopicRule
-  #   Properties:
-  #     RuleName:
-  #       Ref: "Lambda-IoT-Rule"
-  #     TopicRulePayload:
-  #       RuleDisabled: "false"
-  #       Sql: >-
-  #         SELECT * FROM 'api/iot/pub/#'
-  #       Actions:
-  #         -
-  #           Republish:
-  #             Topic: "api/iot/sub"
-  #             RoleArn: "arn:aws:iam::740976047420:role/service-role/WebInterface-Subscribe"
+resources:
+  Resources:
+    MyRule:
+      Type: AWS::IoT::TopicRule
+      Properties:
+        RuleName: "MyRule"
+        TopicRulePayload:
+          RuleDisabled: "false"
+          Sql: >-
+            SELECT * FROM 'api/iot/pub/#'
+          Actions:
+            -
+              Lambda:
+                FunctionArn: {Fn::GetAtt: [ ECSLambdaFunction, Arn ]}

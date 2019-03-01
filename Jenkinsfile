@@ -10,13 +10,8 @@ node{
         /* This builds the actual image: synonymous to
             docker build on the command line */
             app = docker.build("jenkins-demo")   
-    }
+    }   
     
-    stage("Update Stack In CloudFormation"){
-                // script: sh("HOME=/home/ubuntu && sudo aws cloudformation update-stack --stack-name My-ECS-stack --region us-east-1 --template-body file://serverless/serverless.yml")
-                sh("sudo cd serverless && sudo serverless --region us-east-1 deploy -v")
-    }
-
     stage('Push To AWS Repo'){
         
         GET_TOKEN = sh(
