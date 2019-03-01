@@ -45,6 +45,7 @@ myAWSIoTMQTTClient.configureConnectDisconnectTimeout(25)
 myAWSIoTMQTTClient.configureMQTTOperationTimeout(5)
 myAWSIoTMQTTClient.connect()
 
+#Dictionaries..
 response_Dict = dict()
 event_Dict = dict()
 
