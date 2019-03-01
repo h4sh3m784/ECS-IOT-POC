@@ -96,7 +96,7 @@ def response_device(device_id):
 
     response_Dict[response['RequestId']] = response
 
-    response_Dict[response['RequestId']].set()
+    event_Dict[response['RequestId']].set()
     
     return json.loads('{"Status: "200"')
 
