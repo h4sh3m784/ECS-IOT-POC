@@ -92,10 +92,10 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/my-ecs-iot-lambda-service/dev/1551444951261-2019-03-01T12:55:51.261Z/my-ecs-iot-lambda-service.zip"
+          "S3Key": "serverless/my-ecs-iot-lambda-service/dev/1551449683657-2019-03-01T14:14:43.657Z/my-ecs-iot-lambda-service.zip"
         },
         "FunctionName": "my-ecs-iot-lambda-service-dev-ECS",
-        "Handler": "handler.lambda_handler.py",
+        "Handler": "handler.lambda_handler",
         "MemorySize": 512,
         "Role": {
           "Fn::GetAtt": [
@@ -111,14 +111,14 @@
         "IamRoleLambdaExecution"
       ]
     },
-    "ECSLambdaVersion8RyfLEZbUAvobCg8s91h89ERuQqqTnRoTpitXRVE": {
+    "ECSLambdaVersionAVQrwVbGekC3Yw4C6YhsbTekIOzVoK5Qj3SB7Y9bw": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "ECSLambdaFunction"
         },
-        "CodeSha256": "OejlXnDrSh5Q7o/2Wjn68HbiinQTEzR7e1pIOnAAgoQ="
+        "CodeSha256": "GBr3NSmR569yzTrHKCRln1LJG1I+I0NX3GrLNzITitM="
       }
     },
     "MyRule": {
@@ -127,7 +127,7 @@
         "RuleName": "MyRule",
         "TopicRulePayload": {
           "RuleDisabled": "false",
-          "Sql": "SELECT * FROM 'api/iot/pub/#'",
+          "Sql": "SELECT * FROM 'api/iot/lambda/pub/#'",
           "Actions": [
             {
               "Lambda": {
@@ -153,7 +153,7 @@
     "ECSLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "ECSLambdaVersion8RyfLEZbUAvobCg8s91h89ERuQqqTnRoTpitXRVE"
+        "Ref": "ECSLambdaVersionAVQrwVbGekC3Yw4C6YhsbTekIOzVoK5Qj3SB7Y9bw"
       }
     }
   }

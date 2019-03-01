@@ -79,7 +79,7 @@ def request_device(device_id):
 
     event_Dict[thisRequestId] = event #Save waiting event in Dict, waiting for the response.
 
-    event.wait(10) #Wait for 10 seconds before time out, or the event being set()
+    event.wait(timeout=10) #Wait for 10 seconds before time out, or the event being set()
 
     logger.debug("Received the response..")
 

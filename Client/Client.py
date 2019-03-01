@@ -10,8 +10,9 @@ from time import sleep
 #Publish Thread
 def publish_thread(message):
     message_dic = json.loads(message.payload)
+    print(message_dic['DeviceId'])
     pub_topic = "api/iot/lambda/pub/" + message_dic['DeviceId']
-    myAWSIoTMQTTClient.publish(pub_topic, message.payload, 1)
+    myAWSIoTMQTTClient.publish(pub_topic, message.payload, 0)
     print(pub_topic)
     print("message send..")
 
@@ -62,7 +63,7 @@ myAWSIoTMQTTClient.configureMQTTOperationTimeout(5)  # 5 sec
 
 # Connect and subscribe to AWS IoT
 myAWSIoTMQTTClient.connect()
-myAWSIoTMQTTClient.subscribe(sub_topic, 1, customCallback)
+myAWSIoTMQTTClient.subscribe(sub_topic, 0, customCallback)
 
 #Wait for messages.
 while True:

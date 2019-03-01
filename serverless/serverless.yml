@@ -8,7 +8,7 @@ provider:
 
 functions:
   ECS:
-      handler: handler.lambda_handler.py
+      handler: handler.lambda_handler
 
 resources:
   Resources:
@@ -22,5 +22,5 @@ resources:
             SELECT * FROM 'api/iot/lambda/pub/#'
           Actions:
             -
-              Lambda:
+              Lambda: 
                 FunctionArn: {Fn::GetAtt: [ ECSLambdaFunction, Arn ]}
