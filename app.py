@@ -5,7 +5,7 @@ from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient
 import json
 import uuid
 import subprocess
-import socket
+import requests
 import logging
 import os
 import threading
@@ -64,7 +64,7 @@ def request_device(device_id):
     pub_message = dict()
     pub_message['DeviceId'] = device_id
     pub_message['Message'] = request_body['Message']
-    pub_message['EndPoint'] = socket.gethostbyname(socket.gethostname()) + "/lambda-response/" + device_id
+    pub_message['EndPoint'] = requests.get('http://ip.42.pl/raw').text + "/lambda-response/" + device_id
     pub_message['RequestId'] = thisRequestId
     
     pub_message = json.dumps(pub_message) #Convert JSON dict to string.
