@@ -19,7 +19,7 @@ resources:
         TopicRulePayload:
           RuleDisabled: "false"
           Sql: >-
-            SELECT * FROM 'api/iot/pub/#'
+            SELECT * FROM 'api/iot/lambda/pub/#'
           Actions:
             -
               Lambda:

@@ -10,7 +10,7 @@ from time import sleep
 #Publish Thread
 def publish_thread(message):
     message_dic = json.loads(message.payload)
-    pub_topic = message_dic['Pub-Topic']
+    pub_topic = "api/iot/lambda/pub/" + message_dic['DeviceId']
     myAWSIoTMQTTClient.publish(pub_topic, message.payload, 1)
     print(pub_topic)
     print("message send..")
