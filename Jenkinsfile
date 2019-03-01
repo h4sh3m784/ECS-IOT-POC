@@ -29,6 +29,11 @@ node{
     }
 
     stage("Start ECS-Task"){
+        GET_TASKS = sh(
+            script:"sudo aws ecs list-tasks --cluster my-cluster | jq .taskArns[0]",
+            returnStdout: true
+            ).trim()
+        sh("echo 'greate stuff!!!'")
         sh("sudo aws ecs run-task --cluster my-cluster --task-definition logging --region us-east-1 --launch-type FARGATE --network-configuration 'awsvpcConfiguration={subnets='subnet-93eafad8',securityGroups='sg-0891eafe4dbcc756a',assignPublicIp='ENABLED'}'")
     }
 }
