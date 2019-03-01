@@ -30,7 +30,7 @@ node{
 
     stage("Start ECS-Task"){
         GET_TASKS = sh(
-            script:"sudo aws ecs list-tasks --cluster my-cluster | jq .taskArns[0]",
+            script:"sudo aws ecs list-tasks --cluster my-cluster --region us-east-1 | jq .taskArns[0]",
             returnStdout: true
             ).trim()
         sh("echo 'greate stuff!!!'")
