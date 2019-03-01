@@ -64,7 +64,7 @@ def request_device(device_id):
     pub_message = dict()
     pub_message['DeviceId'] = device_id
     pub_message['Message'] = request_body['Message']
-    pub_message['EndPoint'] = socket.gethostname() + "/lambda-response/" + device_id
+    pub_message['EndPoint'] = socket.gethostbyname(socket.gethostname()) + "/lambda-response/" + device_id
     pub_message['RequestId'] = thisRequestId
     
     pub_message = json.dumps(pub_message) #Convert JSON dict to string.
