@@ -20,9 +20,9 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 logger = logging.getLogger()
 
-xray_recorder.configure(
-    plugins=('ECSPlugin')
-)
+plugins = ('ElasticBeanstalkPlugin', 'EC2Plugin', 'ECSPlugin')
+
+xray_recorder.configure(plugins=plugins)
 patch_all()
 
 #Get and Set Credentials for the docker container.
