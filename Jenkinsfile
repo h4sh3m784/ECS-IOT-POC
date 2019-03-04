@@ -30,7 +30,7 @@ node{
 
     stage("Start ECS-Task"){
         GET_TASKS = sh(
-            script:"sudo aws ecs list-tasks --cluster my-cluster --region us-east-1 --output text --container-instance my-web-interface-task",
+            script:"sudo aws ecs list-tasks --cluster my-cluster --region us-east-1 --output text --container-instance arn:aws:ecs:us-east-1:740976047420:task-definition/logging:1",
             returnStdout: true
             ).trim()
             
