@@ -98,9 +98,9 @@ def response_device(device_id):
 
     logger.debug(response)
 
-    response_Dict[response['RequestId']] = response
+    response_Dict[response['MessageInfo']['RequestId']] = response
 
-    event_Dict[response['RequestId']].set()
+    event_Dict[response['MessageInfo']['RequestId']].set()
     
     return json.loads('{"Status: "200"')
 
