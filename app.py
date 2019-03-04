@@ -36,7 +36,9 @@ os.environ["AWS_SESSION_TOKEN"] = data['Token']
 
 app = Flask(__name__)
 
-xray_recorder.configure(service='fallback_name')
+xray_recorder.configure(service='Demo App',sampling=False)
+xray_recorder.configure(plugins=['EC2Plugin','ECSPlugin'])
+xray_recorder.configure(daemon_address='127.0.0.1:2000')
 XRayMiddleware(app, xray_recorder)
 
 host = "a29zo009haxq0r-ats.iot.us-east-1.amazonaws.com"
@@ -61,7 +63,6 @@ event_Dict = dict()
 endpoint_url = requests.get('http://ip.42.pl/raw').text + "/lambda-response/"
 
 @app.route('/device/<device_id>', methods=['POST'])
-@xray_recorder.capture('Request Device')
 def request_device(device_id):
 
     #logger.debug("Request to publish to " + device_id)
@@ -103,7 +104,6 @@ def request_device(device_id):
     return response
 
 @app.route('/lambda-response/<device_id>', methods=['POST'])
-@xray_recorder.capture('Response Device')
 def response_device(device_id):
 
     response = json.loads(request.data)
