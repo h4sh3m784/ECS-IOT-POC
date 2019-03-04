@@ -2,3 +2,4 @@ AWSIoTPythonSDK
 flask
 flask_restful
 requests
+aws-xray-sdk

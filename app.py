@@ -1,5 +1,7 @@
 from flask import Flask
 from flask import request
+
+from aws_xray_sdk.core import xray_recorder
 from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient
 
 import json
@@ -45,13 +47,21 @@ myAWSIoTMQTTClient.configureConnectDisconnectTimeout(25)
 myAWSIoTMQTTClient.configureMQTTOperationTimeout(5)
 myAWSIoTMQTTClient.connect()
 
+xray_recorder.configure(
+    sampling=False,
+    context_missing='LOG_ERROR',
+    plugins=('ECSPlugin'),
+    daemon_address='0.0.0.0:80',
+)
+
 #Dictionaries..
 response_Dict = dict()
 event_Dict = dict()
 
-url = requests.get('http://ip.42.pl/raw').text + "/lambda-response/"
+endpoint_url = requests.get('http://ip.42.pl/raw').text + "/lambda-response/"
 
 @app.route('/device/<device_id>', methods=['POST'])
+@xray_recorder.capture('Request Device')
 def request_device(device_id):
 
     #logger.debug("Request to publish to " + device_id)
@@ -63,7 +73,7 @@ def request_device(device_id):
     thisRequestId = str(uuid.uuid4()) #Create new Request ID
 
     info ={
-        "EndPoint": url + device_id,
+        "EndPoint": endpoint_url + device_id,
         "RequestId": thisRequestId
     }
 
@@ -75,7 +85,6 @@ def request_device(device_id):
     
     pub_message = json.dumps(pub_message) #Convert JSON dict to string.
     
-
     myAWSIoTMQTTClient.publish(pub_topic, pub_message, 0) #Publish to MQTT
 
     logger.debug("Publishing message: " + json.dumps(pub_message))
@@ -94,10 +103,10 @@ def request_device(device_id):
     return response
 
 @app.route('/lambda-response/<device_id>', methods=['POST'])
+@xray_recorder.capture('Response Device')
 def response_device(device_id):
 
     response = json.loads(request.data)
-
 
     response_Dict[response['MessageInfo']['RequestId']] = response
 
