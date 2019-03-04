@@ -10,17 +10,17 @@ from time import sleep
 #Publish Thread
 def publish_thread(message):
     message_dic = json.loads(message.payload)
-    print(message_dic['DeviceId'])
-    pub_topic = "api/iot/lambda/pub/" + message_dic['DeviceId']
+    # print(message_dic['DeviceId'])
+    pub_topic = "$aws/rules/MyRule"
     myAWSIoTMQTTClient.publish(pub_topic, message.payload, 0)
-    print(pub_topic)
+    # print(pub_topic)
     print("message send..")
 
 def customCallback(client, userdata, message):
     print("Received a new message: ")
-    print(message.payload)
-    print("from topic: ")
-    print(message.topic)
+    # print(message.payload)
+    # print("from topic: ")
+    # print(message.topic)
     print("--------------\n\n")
 
     #Start Publish thread
@@ -57,7 +57,7 @@ myAWSIoTMQTTClient.configureCredentials(rootCAPath)
 # AWSIoTMQTTClient connection configuration
 myAWSIoTMQTTClient.configureAutoReconnectBackoffTime(1, 32, 20)
 myAWSIoTMQTTClient.configureOfflinePublishQueueing(-1)  # Infinite offline Publish queueing
-myAWSIoTMQTTClient.configureDrainingFrequency(2)  # Draining: 2 Hz
+myAWSIoTMQTTClient.configureDrainingFrequency(0.5)  # Draining: 2 Hz
 myAWSIoTMQTTClient.configureConnectDisconnectTimeout(10)  # 10 sec
 myAWSIoTMQTTClient.configureMQTTOperationTimeout(5)  # 5 sec
 
@@ -67,6 +67,6 @@ myAWSIoTMQTTClient.subscribe(sub_topic, 0, customCallback)
 
 #Wait for messages.
 while True:
-        print("waiting for message")
-        print("On topic: ", sub_topic)
-        sleep(1)
+        # print("waiting for message")
+        # print("On topic: ", sub_topic)
+        sleep(1000)

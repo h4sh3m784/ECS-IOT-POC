@@ -68,7 +68,7 @@ def request_device(device_id):
     pub_message['RequestId'] = thisRequestId
     
     pub_message = json.dumps(pub_message) #Convert JSON dict to string.
-
+    
     logger.debug("Publishing message: " + json.dumps(pub_message))
 
     myAWSIoTMQTTClient.publish(pub_topic, pub_message, 0) #Publish to MQTT
