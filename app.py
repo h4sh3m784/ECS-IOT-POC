@@ -2,6 +2,8 @@ from flask import Flask
 from flask import request
 
 from aws_xray_sdk.core import xray_recorder
+from aws_xray_sdk.core import patch_all
+
 from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient
 
 import json
@@ -17,6 +19,11 @@ import sys
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 logger = logging.getLogger()
+
+xray_recorder.configure(aws_xray_tracing_name='My app')
+plugins = ('ECSPlugin')
+xray_recorder.configure(plugins=plugins)
+patch_all()
 
 #Get and Set Credentials for the docker container.
 relative_URI = os.environ['AWS_CONTAINER_CREDENTIALS_RELATIVE_URI']
@@ -47,12 +54,6 @@ myAWSIoTMQTTClient.configureConnectDisconnectTimeout(25)
 myAWSIoTMQTTClient.configureMQTTOperationTimeout(5)
 myAWSIoTMQTTClient.connect()
 
-xray_recorder.configure(
-    sampling=False,
-    context_missing='LOG_ERROR',
-    plugins=('ECSPlugin'),
-    daemon_address='0.0.0.0:80',
-)
 
 #Dictionaries..
 response_Dict = dict()
