@@ -60,12 +60,16 @@ def request_device(device_id):
 
     thisRequestId = str(uuid.uuid4()) #Create new Request ID
 
+    info ={
+        "EndPoint": requests.get('http://ip.42.pl/raw').text + "/lambda-response/" + device_id,
+        "RequestId": thisRequestId
+    }
+
     #Create Message for publish
     pub_message = dict()
     pub_message['DeviceId'] = device_id
     pub_message['Message'] = request_body['Message']
-    pub_message['EndPoint'] = requests.get('http://ip.42.pl/raw').text + "/lambda-response/" + device_id
-    pub_message['RequestId'] = thisRequestId
+    pub_message['MessageInfo'] = info
     
     pub_message = json.dumps(pub_message) #Convert JSON dict to string.
     

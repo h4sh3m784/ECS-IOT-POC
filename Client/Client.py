@@ -11,9 +11,10 @@ from time import sleep
 def publish_thread(message):
     message_dic = json.loads(message.payload)
     # print(message_dic['DeviceId'])
-    pub_topic = "$aws/rules/MyRule"
+    pub_topic = "$aws/rules/MyRule" 
     myAWSIoTMQTTClient.publish(pub_topic, message.payload, 0)
     # print(pub_topic)
+    print(message.payload)
     print("message send..")
 
 def customCallback(client, userdata, message):
