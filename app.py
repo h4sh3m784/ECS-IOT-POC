@@ -20,9 +20,9 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 logger = logging.getLogger()
 
-xray_recorder.configure(aws_xray_tracing_name='My app')
-plugins = ('ECSPlugin')
-xray_recorder.configure(plugins=plugins)
+xray_recorder.configure(
+    plugins=('ECSPlugin')
+)
 patch_all()
 
 #Get and Set Credentials for the docker container.
