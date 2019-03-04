@@ -49,6 +49,8 @@ myAWSIoTMQTTClient.connect()
 response_Dict = dict()
 event_Dict = dict()
 
+url = requests.get('http://ip.42.pl/raw').text + "/lambda-response/"
+
 @app.route('/device/<device_id>', methods=['POST'])
 def request_device(device_id):
 
@@ -61,7 +63,7 @@ def request_device(device_id):
     thisRequestId = str(uuid.uuid4()) #Create new Request ID
 
     info ={
-        "EndPoint": requests.get('http://ip.42.pl/raw').text + "/lambda-response/" + device_id,
+        "EndPoint": url + device_id,
         "RequestId": thisRequestId
     }
 
