@@ -2,7 +2,8 @@ from flask import Flask
 from flask import request
 
 from aws_xray_sdk.core import xray_recorder
-from aws_xray_sdk.core import patch_all
+from aws_xray_sdk.ext.flask.middleware import XRayMiddleware
+
 
 from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient
 
@@ -20,11 +21,6 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 logger = logging.getLogger()
 
-plugins = ('ElasticBeanstalkPlugin', 'EC2Plugin', 'ECSPlugin')
-
-xray_recorder.configure(plugins=plugins)
-patch_all()
-
 #Get and Set Credentials for the docker container.
 relative_URI = os.environ['AWS_CONTAINER_CREDENTIALS_RELATIVE_URI']
 
@@ -39,6 +35,9 @@ os.environ["AWS_SECRET_ACCESS_KEY"] = data['SecretAccessKey']
 os.environ["AWS_SESSION_TOKEN"] = data['Token']
 
 app = Flask(__name__)
+
+xray_recorder.configure(service='fallback_name')
+XRayMiddleware(app, xray_recorder)
 
 host = "a29zo009haxq0r-ats.iot.us-east-1.amazonaws.com"
 rootCAPath = "root-CA.crt"
