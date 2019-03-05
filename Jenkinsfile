@@ -29,22 +29,22 @@ node{
     }
 
     stage("Start ECS-Task"){
-        GET_TASKS = sh(
-            script:"sudo aws ecs list-tasks --cluster my-cluster --region us-east-1 --output text --query taskArns[0]",
-            returnStdout: true
-            ).trim()
+        // GET_TASKS = sh(
+        //     script:"sudo aws ecs list-tasks --cluster my-cluster --region us-east-1 --output text --query taskArns[0]",
+        //     returnStdout: true
+        //     ).trim()
             
-        sh("echo ${GET_TASKS}")
-            //Check if a task is already running.
-         if("${GET_TASKS}" == "None"){
-            sh("echo 'Nothings running..'")
-            sh("sudo aws ecs run-task --cluster my-cluster --task-definition logging --region us-east-1 --launch-type FARGATE --network-configuration 'awsvpcConfiguration={subnets='subnet-93eafad8',securityGroups='sg-0891eafe4dbcc756a',assignPublicIp='ENABLED'}'")
-        }else{
-            sh("echo 'Tasks are running..'")
-            sh("echo Stopping Tasks")
+        // sh("echo ${GET_TASKS}")
+        //     //Check if a task is already running.
+        //  if("${GET_TASKS}" == "None"){
+        //     sh("echo 'Nothings running..'")
+        //     sh("sudo aws ecs run-task --cluster my-cluster --task-definition logging --region us-east-1 --launch-type FARGATE --network-configuration 'awsvpcConfiguration={subnets='subnet-93eafad8',securityGroups='sg-0891eafe4dbcc756a',assignPublicIp='ENABLED'}'")
+        // }else{
+        //     sh("echo 'Tasks are running..'")
+        //     sh("echo Stopping Tasks")
 
-            sh("sudo aws ecs stop-task --cluster my-cluster --region us-east-1 --task ${GET_TASKS}")
-            sh("sudo aws ecs run-task --cluster my-cluster --task-definition logging --region us-east-1 --launch-type FARGATE --network-configuration 'awsvpcConfiguration={subnets='subnet-93eafad8',securityGroups='sg-0891eafe4dbcc756a',assignPublicIp='ENABLED'}'")
-        }
+        //     sh("sudo aws ecs stop-task --cluster my-cluster --region us-east-1 --task ${GET_TASKS}")
+        //     sh("sudo aws ecs run-task --cluster my-cluster --task-definition logging --region us-east-1 --launch-type FARGATE --network-configuration 'awsvpcConfiguration={subnets='subnet-93eafad8',securityGroups='sg-0891eafe4dbcc756a',assignPublicIp='ENABLED'}'")
+        // }
     }
 }
