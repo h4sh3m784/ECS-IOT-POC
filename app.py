@@ -3,7 +3,7 @@ from flask import request
 
 from aws_xray_sdk.core import xray_recorder
 from aws_xray_sdk.ext.flask.middleware import XRayMiddleware
-
+from aws_xray_sdk.core import patch_all
 
 from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient
 
@@ -37,9 +37,13 @@ os.environ["AWS_SESSION_TOKEN"] = data['Token']
 app = Flask(__name__)
 
 #Config
-xray_recorder.configure(service='Demo App',sampling=False)
-xray_recorder.configure(plugins=['ECSPlugin'])
-xray_recorder.configure(daemon_address='107.23.122.172:2000')
+xray_recorder.configure(
+    service='Demo-APP',
+    sampling_rules=False,
+    context_missing='LOG_ERROR',
+    plugins=('ECSPlugin',)
+)
+patch_all()
 XRayMiddleware(app, xray_recorder)
 
 host = "a29zo009haxq0r-ats.iot.us-east-1.amazonaws.com"
