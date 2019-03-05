@@ -36,6 +36,7 @@ os.environ["AWS_SESSION_TOKEN"] = data['Token']
 
 app = Flask(__name__)
 
+#Config
 xray_recorder.configure(service='Demo App',sampling=False)
 xray_recorder.configure(plugins=['ECSPlugin'])
 XRayMiddleware(app, xray_recorder)
