@@ -39,6 +39,7 @@ app = Flask(__name__)
 #Config
 xray_recorder.configure(service='Demo App',sampling=False)
 xray_recorder.configure(plugins=['ECSPlugin'])
+xray_recorder.configure(daemon_address='107.23.122.172:2000')
 XRayMiddleware(app, xray_recorder)
 
 host = "a29zo009haxq0r-ats.iot.us-east-1.amazonaws.com"
