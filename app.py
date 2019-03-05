@@ -3,7 +3,6 @@ from flask import request
 
 from aws_xray_sdk.core import xray_recorder
 from aws_xray_sdk.ext.flask.middleware import XRayMiddleware
-from aws_xray_sdk.core import patch_all
 
 from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient
 
@@ -42,7 +41,7 @@ xray_recorder.configure(
     sampling_rules=False,
     plugins=('ECSPlugin',)
 )
-patch_all()
+
 XRayMiddleware(app, xray_recorder)
 
 host = "a29zo009haxq0r-ats.iot.us-east-1.amazonaws.com"
