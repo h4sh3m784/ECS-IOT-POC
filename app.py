@@ -39,6 +39,7 @@ app = Flask(__name__)
 xray_recorder.configure(
     service='Demo-APP',
     sampling_rules=False,
+    daemon_address= '54.242.15.105:2000',
     plugins=('ECSPlugin',)
 )
 
