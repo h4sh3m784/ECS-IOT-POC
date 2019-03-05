@@ -40,7 +40,6 @@ app = Flask(__name__)
 xray_recorder.configure(
     service='Demo-APP',
     sampling_rules=False,
-    context_missing='LOG_ERROR',
     plugins=('ECSPlugin',)
 )
 patch_all()
