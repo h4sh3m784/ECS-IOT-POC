@@ -36,10 +36,10 @@ os.environ["AWS_SESSION_TOKEN"] = data['Token']
 app = Flask(__name__)
 
 #Config
-# xray_recorder.configure(
-#     service='Demo-APP',
-#     sampling_rules=False
-# )
+xray_recorder.configure(
+    service='Demo-APP',
+    sampling_rules=False
+)
 
 # XRayMiddleware(app, xray_recorder)
 
@@ -88,7 +88,9 @@ def request_device(device_id):
     
     pub_message = json.dumps(pub_message) #Convert JSON dict to string.
     
+    xray_recorder.begin_segment("PUBLISH SEGMENT")
     myAWSIoTMQTTClient.publish(pub_topic, pub_message, 1) #Publish to MQTT
+    xray_recorder.end_segment()
 
     logger.debug("Publishing message: " + json.dumps(pub_message))
     logger.debug("Waiting for " + thisRequestId)
