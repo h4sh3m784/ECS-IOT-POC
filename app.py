@@ -43,7 +43,7 @@ xray_recorder.configure(
 
 XRayMiddleware(app, xray_recorder)
 
-host = "a29zo009haxq0r-ats.iot.us-east-1.amazonaws.com"
+host = "a29zo009haxq0r-ats.iot.eu-west-1.amazonaws.com"
 rootCAPath = "root-CA.crt"
 port = 443
 
