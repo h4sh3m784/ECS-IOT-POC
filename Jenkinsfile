@@ -15,7 +15,7 @@ node{
     stage('Push To AWS Repo'){
         
         GET_TOKEN = sh(
-            script: "sudo aws ecr get-login --no-include-email --region us-east-1 --debug",
+            script: "sudo aws ecr get-login --no-include-email --region eu-west-1 --debug",
             returnStdout: true
             ).trim()
         
@@ -24,13 +24,13 @@ node{
             retrunStdout: true
             )
             
-        sh("sudo docker tag jenkins-demo 740976047420.dkr.ecr.us-east-1.amazonaws.com/my-web-interface")
-        sh("sudo docker push 740976047420.dkr.ecr.us-east-1.amazonaws.com/my-web-interface")
+        sh("sudo docker tag jenkins-demo 740976047420.dkr.ecr.eu-west-1.amazonaws.com/web-interface")
+        sh("sudo docker push 740976047420.dkr.ecr.eu-west-1.amazonaws.com/web-interface")
     }
 
     stage("Start ECS-Task"){
         GET_TASKS = sh(
-            script:"sudo aws ecs list-tasks --cluster my-cluster --region us-east-1 --output text --query taskArns[0]",
+            script:"sudo aws ecs list-tasks --cluster default --region eu-west-1 --output text --query taskArns[0]",
             returnStdout: true
             ).trim()
             
@@ -38,13 +38,13 @@ node{
             //Check if a task is already running.
          if("${GET_TASKS}" == "None"){
             sh("echo 'Nothings running..'")
-            sh("sudo aws ecs run-task --cluster my-cluster --task-definition logging --region us-east-1 --launch-type FARGATE --network-configuration 'awsvpcConfiguration={subnets='subnet-93eafad8',securityGroups='sg-0891eafe4dbcc756a',assignPublicIp='ENABLED'}'")
+            sh("sudo aws ecs run-task --cluster default --task-definition Web-Api --region us-west-1 --launch-type FARGATE --network-configuration 'awsvpcConfiguration={subnets='subnet-c6211f9d',securityGroups='sg-ad5ae8d7',assignPublicIp='ENABLED'}'")
         }else{
             sh("echo 'Tasks are running..'")
             sh("echo Stopping Tasks")
 
-            sh("sudo aws ecs stop-task --cluster my-cluster --region us-east-1 --task ${GET_TASKS}")
-            sh("sudo aws ecs run-task --cluster my-cluster --task-definition logging --region us-east-1 --launch-type FARGATE --network-configuration 'awsvpcConfiguration={subnets='subnet-93eafad8',securityGroups='sg-0891eafe4dbcc756a',assignPublicIp='ENABLED'}'")
+            sh("sudo aws ecs stop-task --cluster default --region eu-west-1 --task ${GET_TASKS}")
+            sh("sudo aws ecs run-task --cluster default --task-definition Web-Api --region eu-west-1 --launch-type FARGATE --network-configuration 'awsvpcConfiguration={subnets='subnet-c6211f9d',securityGroups='sg-ad5ae8d7',assignPublicIp='ENABLED'}'")
         }
     }
 }

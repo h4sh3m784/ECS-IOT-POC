@@ -8,7 +8,7 @@
     "ECSLogGroup": {
       "Type": "AWS::Logs::LogGroup",
       "Properties": {
-        "LogGroupName": "/aws/lambda/my-ecs-iot-lambda-service-dev-ECS"
+        "LogGroupName": "/aws/lambda/ecs-service-dev-ECS"
       }
     },
     "IamRoleLambdaExecution": {
@@ -37,7 +37,7 @@
                 "-",
                 [
                   "dev",
-                  "my-ecs-iot-lambda-service",
+                  "ecs-service",
                   "lambda"
                 ]
               ]
@@ -52,7 +52,7 @@
                   ],
                   "Resource": [
                     {
-                      "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/my-ecs-iot-lambda-service-dev-ECS:*"
+                      "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/ecs-service-dev-ECS:*"
                     }
                   ]
                 },
@@ -63,7 +63,7 @@
                   ],
                   "Resource": [
                     {
-                      "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/my-ecs-iot-lambda-service-dev-ECS:*:*"
+                      "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/ecs-service-dev-ECS:*:*"
                     }
                   ]
                 }
@@ -76,9 +76,9 @@
           "Fn::Join": [
             "-",
             [
-              "my-ecs-iot-lambda-service",
+              "ecs-service",
               "dev",
-              "us-east-1",
+              "eu-west-1",
               "lambdaRole"
             ]
           ]
@@ -92,9 +92,9 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/my-ecs-iot-lambda-service/dev/1551449683657-2019-03-01T14:14:43.657Z/my-ecs-iot-lambda-service.zip"
+          "S3Key": "serverless/ecs-service/dev/1551874485078-2019-03-06T12:14:45.078Z/ecs-service.zip"
         },
-        "FunctionName": "my-ecs-iot-lambda-service-dev-ECS",
+        "FunctionName": "ecs-service-dev-ECS",
         "Handler": "handler.lambda_handler",
         "MemorySize": 512,
         "Role": {
@@ -111,23 +111,23 @@
         "IamRoleLambdaExecution"
       ]
     },
-    "ECSLambdaVersionAVQrwVbGekC3Yw4C6YhsbTekIOzVoK5Qj3SB7Y9bw": {
+    "ECSLambdaVersion3Lik1tVkEkEnMcfd2VAnFbdI6Pzialm3IILGlRZbo0c": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "ECSLambdaFunction"
         },
-        "CodeSha256": "GBr3NSmR569yzTrHKCRln1LJG1I+I0NX3GrLNzITitM="
+        "CodeSha256": "rvXvh0EE+CDTk/U/61wk9+2SvijVmUIo0tnBQJpI2xs="
       }
     },
     "MyRule": {
       "Type": "AWS::IoT::TopicRule",
       "Properties": {
-        "RuleName": "MyRule",
+        "RuleName": "ECSIOTRULE",
         "TopicRulePayload": {
           "RuleDisabled": "false",
-          "Sql": "SELECT * FROM 'api/iot/lambda/pub/#'",
+          "Sql": "SELECT MessageInfo FROM 'api/iot/lambda/pub/#'",
           "Actions": [
             {
               "Lambda": {
@@ -142,6 +142,40 @@
           ]
         }
       }
+    },
+    "WebInterfaceTaskDefinition": {
+      "Type": "AWS::ECS::TaskDefinition",
+      "Properties": {
+        "Cpu": 256,
+        "Memory": 1024,
+        "Family": "Web-Api",
+        "NetworkMode": "awsvpc",
+        "TaskRoleArn": "arn:aws:iam::740976047420:role/ecsTaskExecutionRole",
+        "ExecutionRoleArn": "arn:aws:iam::740976047420:role/ecsTaskExecutionRole",
+        "RequiresCompatibilities": [
+          "FARGATE"
+        ],
+        "ContainerDefinitions": [
+          {
+            "Name": "xray-daemon",
+            "Image": "740976047420.dkr.ecr.eu-west-1.amazonaws.com/xray-daemon:latest",
+            "Cpu": 32,
+            "MemoryReservation": 256,
+            "PortMappings": [
+              {
+                "ContainerPort": 2000,
+                "Protocol": "udp"
+              }
+            ]
+          },
+          {
+            "Name": "Web-Interface",
+            "Image": "740976047420.dkr.ecr.eu-west-1.amazonaws.com/web-interface:latest",
+            "Cpu": 192,
+            "MemoryReservation": 512
+          }
+        ]
+      }
     }
   },
   "Outputs": {
@@ -153,7 +187,7 @@
     "ECSLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "ECSLambdaVersionAVQrwVbGekC3Yw4C6YhsbTekIOzVoK5Qj3SB7Y9bw"
+        "Ref": "ECSLambdaVersion3Lik1tVkEkEnMcfd2VAnFbdI6Pzialm3IILGlRZbo0c"
       }
     }
   }
