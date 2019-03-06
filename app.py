@@ -41,7 +41,7 @@ xray_recorder.configure(
     sampling_rules=False
 )
 
-# XRayMiddleware(app, xray_recorder)
+XRayMiddleware(app, xray_recorder)
 
 host = "a29zo009haxq0r-ats.iot.us-east-1.amazonaws.com"
 rootCAPath = "root-CA.crt"
