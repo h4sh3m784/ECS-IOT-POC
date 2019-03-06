@@ -36,12 +36,12 @@ os.environ["AWS_SESSION_TOKEN"] = data['Token']
 app = Flask(__name__)
 
 #Config
-xray_recorder.configure(
-    service='Demo-APP',
-    sampling_rules=False
-)
+# xray_recorder.configure(
+#     service='Demo-APP',
+#     sampling_rules=False
+# )
 
-XRayMiddleware(app, xray_recorder)
+# XRayMiddleware(app, xray_recorder)
 
 host = "a29zo009haxq0r-ats.iot.us-east-1.amazonaws.com"
 rootCAPath = "root-CA.crt"
