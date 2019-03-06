@@ -5,10 +5,10 @@
     "ServerlessDeploymentBucket": {
       "Type": "AWS::S3::Bucket"
     },
-    "ECSLogGroup": {
+    "MyECSLogGroup": {
       "Type": "AWS::Logs::LogGroup",
       "Properties": {
-        "LogGroupName": "/aws/lambda/ecs-service-dev-ECS"
+        "LogGroupName": "/aws/lambda/ecs-service-dev-MyECS"
       }
     },
     "IamRoleLambdaExecution": {
@@ -52,7 +52,7 @@
                   ],
                   "Resource": [
                     {
-                      "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/ecs-service-dev-ECS:*"
+                      "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/ecs-service-dev-MyECS:*"
                     }
                   ]
                 },
@@ -63,7 +63,7 @@
                   ],
                   "Resource": [
                     {
-                      "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/ecs-service-dev-ECS:*:*"
+                      "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/ecs-service-dev-MyECS:*:*"
                     }
                   ]
                 }
@@ -85,16 +85,16 @@
         }
       }
     },
-    "ECSLambdaFunction": {
+    "MyECSLambdaFunction": {
       "Type": "AWS::Lambda::Function",
       "Properties": {
         "Code": {
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/ecs-service/dev/1551874485078-2019-03-06T12:14:45.078Z/ecs-service.zip"
+          "S3Key": "serverless/ecs-service/dev/1551879913893-2019-03-06T13:45:13.893Z/ecs-service.zip"
         },
-        "FunctionName": "ecs-service-dev-ECS",
+        "FunctionName": "ecs-service-dev-MyECS",
         "Handler": "handler.lambda_handler",
         "MemorySize": 512,
         "Role": {
@@ -107,18 +107,18 @@
         "Timeout": 10
       },
       "DependsOn": [
-        "ECSLogGroup",
+        "MyECSLogGroup",
         "IamRoleLambdaExecution"
       ]
     },
-    "ECSLambdaVersion3Lik1tVkEkEnMcfd2VAnFbdI6Pzialm3IILGlRZbo0c": {
+    "MyECSLambdaVersion6uZwMPpQpuj4ckRbGdi1JLlaeA2LLRBBzyHk1Bb0a40": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
-          "Ref": "ECSLambdaFunction"
+          "Ref": "MyECSLambdaFunction"
         },
-        "CodeSha256": "rvXvh0EE+CDTk/U/61wk9+2SvijVmUIo0tnBQJpI2xs="
+        "CodeSha256": "3dd0BDEm87uL4N1QqPApqKORulzeAHZB8YaDCxBOuWU="
       }
     },
     "MyRule": {
@@ -133,7 +133,7 @@
               "Lambda": {
                 "FunctionArn": {
                   "Fn::GetAtt": [
-                    "ECSLambdaFunction",
+                    "MyECSLambdaFunction",
                     "Arn"
                   ]
                 }
@@ -184,10 +184,10 @@
         "Ref": "ServerlessDeploymentBucket"
       }
     },
-    "ECSLambdaFunctionQualifiedArn": {
+    "MyECSLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "ECSLambdaVersion3Lik1tVkEkEnMcfd2VAnFbdI6Pzialm3IILGlRZbo0c"
+        "Ref": "MyECSLambdaVersion6uZwMPpQpuj4ckRbGdi1JLlaeA2LLRBBzyHk1Bb0a40"
       }
     }
   }

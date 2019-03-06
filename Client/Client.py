@@ -11,7 +11,7 @@ from time import sleep
 def publish_thread(message):
     message_dic = json.loads(message.payload)
     # print(message_dic['DeviceId'])
-    pub_topic = "$aws/rules/MyRule" 
+    pub_topic = "$aws/rules/ecsrule" 
     myAWSIoTMQTTClient.publish(pub_topic, message.payload, 0)
     # print(pub_topic)
     print(message.payload)
@@ -70,4 +70,4 @@ myAWSIoTMQTTClient.subscribe(sub_topic, 0, customCallback)
 while True:
         # print("waiting for message")
         # print("On topic: ", sub_topic)
-        sleep(1000)
+        sleep(1)

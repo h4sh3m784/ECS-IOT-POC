@@ -89,7 +89,7 @@ def request_device(device_id):
     pub_message = json.dumps(pub_message) #Convert JSON dict to string.
     
     xray_recorder.begin_subsegment("PUBLISH SEGMENT")
-    myAWSIoTMQTTClient.publish(pub_topic, pub_message, 1) #Publish to MQTT
+    myAWSIoTMQTTClient.publish(pub_topic, pub_message, 0) #Publish to MQTT
     xray_recorder.end_subsegment()
 
     logger.debug("Publishing message: " + json.dumps(pub_message))

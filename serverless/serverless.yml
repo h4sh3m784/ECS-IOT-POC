@@ -8,7 +8,7 @@ provider:
   timeout: 10
 
 functions:
-  ECS:
+  MyECS:
       handler: handler.lambda_handler
 
 resources:
@@ -24,7 +24,7 @@ resources:
           Actions:
             -
               Lambda: 
-                FunctionArn: {Fn::GetAtt: [ ECSLambdaFunction, Arn ]}
+                FunctionArn: {Fn::GetAtt: [ MyECSLambdaFunction, Arn ]}
 
     WebInterfaceTaskDefinition:
       Type: AWS::ECS::TaskDefinition
