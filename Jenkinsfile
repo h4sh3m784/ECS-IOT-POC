@@ -38,7 +38,7 @@ node{
             //Check if a task is already running.
          if("${GET_TASKS}" == "None"){
             sh("echo 'Nothings running..'")
-            sh("sudo aws ecs run-task --cluster default --task-definition Web-Api --region us-west-1 --launch-type FARGATE --network-configuration 'awsvpcConfiguration={subnets='subnet-c6211f9d',securityGroups='sg-ad5ae8d7',assignPublicIp='ENABLED'}'")
+            sh("sudo aws ecs run-task --cluster default --task-definition Web-Api --region eu-west-1 --launch-type FARGATE --network-configuration 'awsvpcConfiguration={subnets='subnet-c6211f9d',securityGroups='sg-ad5ae8d7',assignPublicIp='ENABLED'}'")
         }else{
             sh("echo 'Tasks are running..'")
             sh("echo Stopping Tasks")
