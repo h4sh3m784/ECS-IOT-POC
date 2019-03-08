@@ -1,4 +1,6 @@
 from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient
+from aws_xray_sdk.core import xray_recorder
+
 import logging
 import argparse
 import json
@@ -7,13 +9,24 @@ import uuid
 from threading import Thread
 from time import sleep
 
+xray_recorder.configure(
+    sampling_rules=False,
+    service="Device-App"
+    )   
+
 #Publish Thread
 def publish_thread(message):
+    # print(pub_topic)
     message_dic = json.loads(message.payload)
     # print(message_dic['DeviceId'])
-    pub_topic = "$aws/rules/ecsrule" 
-    myAWSIoTMQTTClient.publish(pub_topic, message.payload, 0)
-    # print(pub_topic)
+    pub_topic = "$aws/rules/ECSIOTRULE"
+
+    xray_recorder.begin_segment("Device-App-Segment")
+    xray_recorder.begin_subsegment("Device-App-Publish-SubSegment")
+    myAWSIoTMQTTClient.publish(pub_topic, message.payload, 1)
+    xray_recorder.end_subsegment()
+    xray_recorder.end_segment()
+
     print(message.payload)
     print("message send..")
 
@@ -58,7 +71,7 @@ myAWSIoTMQTTClient.configureCredentials(rootCAPath)
 # AWSIoTMQTTClient connection configuration
 myAWSIoTMQTTClient.configureAutoReconnectBackoffTime(1, 32, 20)
 myAWSIoTMQTTClient.configureOfflinePublishQueueing(-1)  # Infinite offline Publish queueing
-myAWSIoTMQTTClient.configureDrainingFrequency(0.5)  # Draining: 2 Hz
+myAWSIoTMQTTClient.configureDrainingFrequency(2)  # Draining: 2 Hz
 myAWSIoTMQTTClient.configureConnectDisconnectTimeout(10)  # 10 sec
 myAWSIoTMQTTClient.configureMQTTOperationTimeout(5)  # 5 sec
 

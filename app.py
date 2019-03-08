@@ -32,8 +32,8 @@ data = json.loads(output)
 os.environ["AWS_ACCESS_KEY_ID"] = data['AccessKeyId']
 os.environ["AWS_SECRET_ACCESS_KEY"] = data['SecretAccessKey']
 os.environ["AWS_SESSION_TOKEN"] = data['Token']
-
 app = Flask(__name__)
+
 
 #Config
 xray_recorder.configure(
@@ -56,7 +56,6 @@ myAWSIoTMQTTClient.configureDrainingFrequency(2)
 myAWSIoTMQTTClient.configureConnectDisconnectTimeout(25)
 myAWSIoTMQTTClient.configureMQTTOperationTimeout(5)
 myAWSIoTMQTTClient.connect()
-
 
 #Dictionaries..
 response_Dict = dict()
