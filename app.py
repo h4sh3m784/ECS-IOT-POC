@@ -14,7 +14,7 @@ import logging
 import os
 import threading
 import sys
-
+    
 #test change
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
@@ -97,8 +97,10 @@ def request_device(device_id):
     event = threading.Event() #Start waiting thread.
 
     event_Dict[thisRequestId] = event #Save waiting event in Dict, waiting for the response.
-
+    xray_recorder.begin_subsegment("WAIT SEGMENT")
     event.wait(timeout=10) #Wait for 10 seconds before time out, or the event being set()
+    xray_recorder.end_subsegment()
+
 
  #   logger.debug("Received the response..")
 
@@ -109,6 +111,7 @@ def request_device(device_id):
 @app.route('/lambda-response/<device_id>', methods=['POST'])
 def response_device(device_id):
 
+    xray_recorder.begin_subsegment("RESPONSE SEGMENT")
     response = json.loads(request.data)
 
     response_Dict[response['MessageInfo']['RequestId']] = response
@@ -116,6 +119,7 @@ def response_device(device_id):
     event_Dict[response['MessageInfo']['RequestId']].set()
     
     logger.debug(response)
+    xray_recorder.end_subsegment()
     return json.loads('{"Status: "200"')
 
 if __name__ == '__main__':

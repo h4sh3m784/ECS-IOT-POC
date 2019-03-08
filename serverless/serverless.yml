@@ -20,7 +20,7 @@ resources:
         TopicRulePayload:
           RuleDisabled: "false"
           Sql: >-
-            SELECT MessageInfo FROM 'api/iot/lambda/pub/#'
+            SELECT MessageInfo
           Actions:
             -
               Lambda: 
