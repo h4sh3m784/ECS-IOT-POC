@@ -4,7 +4,7 @@ The API Path is an HTTP proxy passthrough, so every device will have it's own pa
 
     www.example.amazon.com/device-request/{device-id}
 
-![Alt text](/home/h4sh3m/Documents/git/ECS-IOT-POC/ECS-IOT.png)
+![Alt text](ECS-IOT.png)
 
 
 ##### ECS Task
