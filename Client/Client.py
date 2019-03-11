@@ -12,22 +12,21 @@ from time import sleep
 xray_recorder.configure(
     sampling_rules=False,
     service="Device-App"
-    )   
+)
 
-#Publish Thread
 def publish_thread(message):
-    # print(pub_topic)
-    message_dic = json.loads(message.payload)
-    # print(message_dic['DeviceId'])
+
+    #Publish to Basic Ingest
     pub_topic = "$aws/rules/ECSIOTRULE"
 
     xray_recorder.begin_segment("Device-App-Segment")
     xray_recorder.begin_subsegment("Device-App-Publish-SubSegment")
+    
     myAWSIoTMQTTClient.publish(pub_topic, message.payload, 1)
+    
     xray_recorder.end_subsegment()
     xray_recorder.end_segment()
 
-    print(message.payload)
     print("message send..")
 
 def customCallback(client, userdata, message):
@@ -81,6 +80,4 @@ myAWSIoTMQTTClient.subscribe(sub_topic, 0, customCallback)
 
 #Wait for messages.
 while True:
-        # print("waiting for message")
-        # print("On topic: ", sub_topic)
-        sleep(1)
+        sleep(1000)

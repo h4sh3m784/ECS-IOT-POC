@@ -92,7 +92,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/ecs-service/dev/1551879913893-2019-03-06T13:45:13.893Z/ecs-service.zip"
+          "S3Key": "serverless/ecs-service/dev/1552307524223-2019-03-11T12:32:04.223Z/ecs-service.zip"
         },
         "FunctionName": "ecs-service-dev-MyECS",
         "Handler": "handler.lambda_handler",
@@ -111,55 +111,110 @@
         "IamRoleLambdaExecution"
       ]
     },
-    "MyECSLambdaVersion6uZwMPpQpuj4ckRbGdi1JLlaeA2LLRBBzyHk1Bb0a40": {
+    "MyECSLambdaVersionQdthYAZCgM2hxUh9sqgF7bXrm6JLxGVb9barGJwVA": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "MyECSLambdaFunction"
         },
-        "CodeSha256": "3dd0BDEm87uL4N1QqPApqKORulzeAHZB8YaDCxBOuWU="
+        "CodeSha256": "mw8hInPc8qQwynyhB9Bb2zqqXMwJPciIQAxohlUrblw="
       }
     },
-    "MyRule": {
-      "Type": "AWS::IoT::TopicRule",
+    "iotExecutionRole": {
+      "Type": "AWS::IAM::Role",
       "Properties": {
-        "RuleName": "ECSIOTRULE",
-        "TopicRulePayload": {
-          "RuleDisabled": "false",
-          "Sql": "SELECT MessageInfo FROM 'api/iot/lambda/pub/#'",
-          "Actions": [
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
             {
-              "Lambda": {
-                "FunctionArn": {
-                  "Fn::GetAtt": [
-                    "MyECSLambdaFunction",
-                    "Arn"
-                  ]
-                }
-              }
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                  "ecs-tasks.amazonaws.com"
+                ]
+              },
+              "Action": [
+                "sts:AssumeRole"
+              ]
             }
           ]
-        }
+        },
+        "Path": "/"
+      }
+    },
+    "iotExecutionPolicy": {
+      "Type": "AWS::IAM::Policy",
+      "DependsOn": "iotExecutionRole",
+      "Properties": {
+        "PolicyName": "iotExecutionPolicy",
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": "iot:*",
+              "Resource": "*"
+            }
+          ]
+        },
+        "Roles": [
+          {
+            "Ref": "iotExecutionRole"
+          }
+        ]
+      }
+    },
+    "DevCluster": {
+      "Type": "AWS::ECS::Cluster",
+      "Properties": {
+        "ClusterName": "DevCluster"
+      }
+    },
+    "XrayDaemonRepo": {
+      "Type": "AWS::ECR::Repository",
+      "Properties": {
+        "RepositoryName": "daemon"
+      }
+    },
+    "WebInterfaceRepo": {
+      "Type": "AWS::ECR::Repository",
+      "Properties": {
+        "RepositoryName": "webapi"
       }
     },
     "WebInterfaceTaskDefinition": {
       "Type": "AWS::ECS::TaskDefinition",
+      "DependsOn": [
+        "iotExecutionRole",
+        "iotExecutionPolicy",
+        "XrayDaemonRepo",
+        "WebInterfaceRepo"
+      ],
       "Properties": {
-        "Cpu": 256,
+        "Cpu": 512,
         "Memory": 1024,
         "Family": "Web-Api",
         "NetworkMode": "awsvpc",
-        "TaskRoleArn": "arn:aws:iam::740976047420:role/ecsTaskExecutionRole",
-        "ExecutionRoleArn": "arn:aws:iam::740976047420:role/ecsTaskExecutionRole",
+        "TaskRoleArn": {
+          "Ref": "iotExecutionRole"
+        },
+        "ExecutionRoleArn": {
+          "Fn::GetAtt": [
+            "iotExecutionRole",
+            "Arn"
+          ]
+        },
         "RequiresCompatibilities": [
           "FARGATE"
         ],
         "ContainerDefinitions": [
           {
             "Name": "xray-daemon",
-            "Image": "740976047420.dkr.ecr.eu-west-1.amazonaws.com/xray-daemon:latest",
-            "Cpu": 32,
+            "Image": {
+              "Ref": "XrayDaemonRepo"
+            },
+            "Cpu": 192,
             "MemoryReservation": 256,
             "PortMappings": [
               {
@@ -169,8 +224,10 @@
             ]
           },
           {
-            "Name": "Web-Interface",
-            "Image": "740976047420.dkr.ecr.eu-west-1.amazonaws.com/web-interface:latest",
+            "Name": "WebInterface",
+            "Image": {
+              "Ref": "WebInterfaceRepo"
+            },
             "Cpu": 192,
             "MemoryReservation": 512
           }
@@ -187,7 +244,7 @@
     "MyECSLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "MyECSLambdaVersion6uZwMPpQpuj4ckRbGdi1JLlaeA2LLRBBzyHk1Bb0a40"
+        "Ref": "MyECSLambdaVersionQdthYAZCgM2hxUh9sqgF7bXrm6JLxGVb9barGJwVA"
       }
     }
   }
