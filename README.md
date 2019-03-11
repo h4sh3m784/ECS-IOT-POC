@@ -1,10 +1,10 @@
 #### This is the documentation for the Web API running in ECS Fargate.
 
+![Alt text](ECS-IOT.png)
+
 The API Path is an HTTP proxy passthrough, so every device will have it's own path making it RESTfull:
 
     www.example.amazon.com/device-request/{device-id}
-
-![Alt text](ECS-IOT.png)
 
 
 ##### ECS Task
