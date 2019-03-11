@@ -1,2 +1,1 @@
-# ECS-IOT-POC
-This is a TEST :)
+#This is the documentation of how for the Web Interface running in ECS Fargate.
