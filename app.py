@@ -37,7 +37,7 @@ event_Dict = dict()
 #GET IP address of the web-server
 endpoint_url = requests.get('http://ip.42.pl/raw').text + "/lambda-response/"
 
-@app.route('/device/<device_id>', methods=['POST'])
+@app.route('/device-request/<device_id>', methods=['POST'])
 def request_device(device_id):
 
     pub_topic = "api/iot/pub/" + device_id
