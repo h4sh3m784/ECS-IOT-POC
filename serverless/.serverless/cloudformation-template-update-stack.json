@@ -92,7 +92,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/ecs-service/dev/1552307524223-2019-03-11T12:32:04.223Z/ecs-service.zip"
+          "S3Key": "serverless/ecs-service/dev/1552564684691-2019-03-14T11:58:04.691Z/ecs-service.zip"
         },
         "FunctionName": "ecs-service-dev-MyECS",
         "Handler": "handler.lambda_handler",
@@ -111,14 +111,36 @@
         "IamRoleLambdaExecution"
       ]
     },
-    "MyECSLambdaVersionQdthYAZCgM2hxUh9sqgF7bXrm6JLxGVb9barGJwVA": {
+    "MyECSLambdaVersionaPCdjNhyNaFvN5mdSODiVEHSK1zRfmk8dxfKLaaRFo": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "MyECSLambdaFunction"
         },
-        "CodeSha256": "mw8hInPc8qQwynyhB9Bb2zqqXMwJPciIQAxohlUrblw="
+        "CodeSha256": "sa9VcM4BeqsG3kAmNQ1TIxM3ZPrhUtR6ZWBVocF6/tI="
+      }
+    },
+    "LambdaIoTRule": {
+      "Type": "AWS::IoT::TopicRule",
+      "Properties": {
+        "RuleName": "ECSIOTRULE",
+        "TopicRulePayload": {
+          "RuleDisabled": "false",
+          "Sql": "SELECT MessageInfo",
+          "Actions": [
+            {
+              "Lambda": {
+                "FunctionArn": {
+                  "Fn::GetAtt": [
+                    "MyECSLambdaFunction",
+                    "Arn"
+                  ]
+                }
+              }
+            }
+          ]
+        }
       }
     },
     "iotExecutionRole": {
@@ -212,7 +234,7 @@
           {
             "Name": "xray-daemon",
             "Image": {
-              "Ref": "XrayDaemonRepo"
+              "Fn::Sub": "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${XrayDaemonRepo}:latest"
             },
             "Cpu": 192,
             "MemoryReservation": 256,
@@ -226,7 +248,7 @@
           {
             "Name": "WebInterface",
             "Image": {
-              "Ref": "WebInterfaceRepo"
+              "Fn::Sub": "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${WebInterfaceRepo}:latest"
             },
             "Cpu": 192,
             "MemoryReservation": 512
@@ -244,7 +266,7 @@
     "MyECSLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "MyECSLambdaVersionQdthYAZCgM2hxUh9sqgF7bXrm6JLxGVb9barGJwVA"
+        "Ref": "MyECSLambdaVersionaPCdjNhyNaFvN5mdSODiVEHSK1zRfmk8dxfKLaaRFo"
       }
     }
   }

@@ -6,6 +6,7 @@ provider:
   region: eu-west-1
   memorySize: 512
   timeout: 10
+  variableSyntax: '\${{([\s\S]+?)}}'
 
 functions:
   MyECS:
@@ -86,7 +87,7 @@ resources:
             - FARGATE
           ContainerDefinitions:
           - Name: "xray-daemon"
-            Image: !Ref XrayDaemonRepo
+            Image: !Sub '${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${XrayDaemonRepo}:latest'
             Cpu: 192
             MemoryReservation: 256
             PortMappings:
@@ -94,6 +95,6 @@ resources:
                 Protocol: "udp"
                 
           - Name: "WebInterface"
-            Image: !Ref WebInterfaceRepo
+            Image: !Sub '${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${WebInterfaceRepo}:latest'
             Cpu: 192
             MemoryReservation: 512
