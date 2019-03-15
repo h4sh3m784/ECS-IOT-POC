@@ -63,7 +63,7 @@ def request_device(device_id):
     client.publish( #Publish to IoT
         topic= pub_topic,
         qos=0,
-        payload=b'bytes'|pub_message
+        payload=pub_message.encode()
     )    
     
     logger.debug("Publishing message: " + json.dumps(pub_message))
