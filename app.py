@@ -75,12 +75,13 @@ def request_device(device_id):
 
     event.wait(timeout=10) #Wait for 10 seconds before time out, or the event being set()
 
+    del event_Dict[thisRequestId]
+
     #Check if the response_dit contains the request key, if not resposne will be a time-out
     if thisRequestId in response_Dict:
-        response = json.dumps(response_Dict[thisRequestId])
-        del event_Dict[thisRequestId]
+        response = response_Dict[thisRequestId]
         del response_Dict[thisRequestId]
-        return response
+        return json.dumps(response)
     else:
         return '{"Status": "Time-out"}'
 
