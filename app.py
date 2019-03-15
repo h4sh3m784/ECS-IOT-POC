@@ -82,7 +82,7 @@ def request_device(device_id):
         del response_Dict[thisRequestId]
         return response
     else:
-        response = json.load('{"Status": "Time-Out"}')
+        response = json.loads('{"Status": "Time-Out"}')
         return response
 
 
