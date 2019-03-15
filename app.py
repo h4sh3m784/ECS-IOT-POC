@@ -72,6 +72,7 @@ def request_device(device_id):
     event = threading.Event() #Start waiting thread.
 
     event_Dict[thisRequestId] = event #Save waiting event in Dict, waiting for the response.
+    response_Dict[thisRequestId] = {}
 
     event.wait(timeout=10) #Wait for 10 seconds before time out, or the event being set()
 
@@ -89,14 +90,15 @@ def request_device(device_id):
 @app.route('/lambda-response/<device_id>', methods=['POST'])
 def response_device(device_id):
 
-    response = json.loads(request.data)
+    if response_Dict.__contains__(response['MessageInfo']['RequestId']):
+        response = json.loads(request.data)
 
-    response_Dict[response['MessageInfo']['RequestId']] = response
+        response_Dict[response['MessageInfo']['RequestId']] = response
 
-    #Set the waiting thread.
-    event_Dict[response['MessageInfo']['RequestId']].set()
-    
+        #Set the waiting thread.
+        event_Dict[response['MessageInfo']['RequestId']].set()
+        
     return json.loads('{"Status": "200"}')
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=80)
+    app.run(debug=False, host='0.0.0.0', port=80)
