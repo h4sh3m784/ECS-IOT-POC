@@ -88,7 +88,7 @@ def request_device(device_id):
         del response_Dict[thisRequestId]
         return json.dumps(response)
     else:
-        return json.loads('{"Status": "Time-out"}')
+        return '{"Status": "Time-out"}'
 
 
 @app.route('/lambda-response/<device_id>', methods=['POST'])
@@ -99,7 +99,7 @@ def response_device(device_id):
     #Set the waiting thread.
     event_Dict[response['MessageInfo']['RequestId']].set()
         
-    return json.loads('{"Status": "200"}')
+    return '{"Status": "200"}'
 
 if __name__ == '__main__':
     app.run(debug=False, host='0.0.0.0', port=80)
