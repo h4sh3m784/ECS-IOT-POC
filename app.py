@@ -15,9 +15,9 @@ import threading
 import sys
     
 #test change
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+# logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
-logger = logging.getLogger()
+# logger = logging.getLogger()
 
 app = Flask(__name__)
 
@@ -75,12 +75,12 @@ def request_device(device_id):
 
     event.wait(timeout=10) #Wait for 10 seconds before time out, or the event being set()
     
+    del event_Dict[thisRequestId]
+
     print("event--dict")
     print(len(event_Dict))
     print("response--dict")
     print(len(response_Dict))
-
-    del event_Dict[thisRequestId]
 
     #Check if the response_dit contains the request key, if not resposne will be a time-out
     if thisRequestId in response_Dict:
@@ -95,10 +95,18 @@ def request_device(device_id):
 def response_device(device_id):
 
     response = json.loads(request.data)
-    response_Dict[response['MessageInfo']['RequestId']] = response
+
+    key = response['MessageInfo']['RequestId']
+
+    response_Dict[key] = response
+
     #Set the waiting thread.
-    event_Dict[response['MessageInfo']['RequestId']].set()
-        
+    if key in event_Dict:
+        event_Dict[key].set()
+    else:
+        print("key timed out")
+        del response_Dict[key]
+
     return '{"Status": "200"}'
 
 if __name__ == '__main__':
