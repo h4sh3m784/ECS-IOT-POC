@@ -1,8 +1,8 @@
 from flask import Flask
 from flask import request
 
-from aws_xray_sdk.core import xray_recorder
-from aws_xray_sdk.ext.flask.middleware import XRayMiddleware
+# from aws_xray_sdk.core import xray_recorder
+# from aws_xray_sdk.ext.flask.middleware import XRayMiddleware
 
 import boto3
 
@@ -24,12 +24,12 @@ app = Flask(__name__)
 client = boto3.client('iot-data')
 
 #Config
-xray_recorder.configure(
-    service='Demo-APP',
-    sampling_rules=False
-)
+# xray_recorder.configure(
+#     service='Demo-APP',
+#     sampling_rules=False
+# )
 
-XRayMiddleware(app, xray_recorder)
+# XRayMiddleware(app, xray_recorder)
 
 response_Dict = dict()
 event_Dict = dict()
@@ -66,8 +66,8 @@ def request_device(device_id):
         payload=pub_message.encode()
     )    
     
-    logger.debug("Publishing message: " + json.dumps(pub_message))
-    logger.debug("Waiting for " + thisRequestId)
+    # logger.debug("Publishing message: " + json.dumps(pub_message))
+    # logger.debug("Waiting for " + thisRequestId)
 
     event = threading.Event() #Start waiting thread.
 
@@ -81,7 +81,7 @@ def request_device(device_id):
     if thisRequestId in response_Dict:
         response = response_Dict[thisRequestId]
         del response_Dict[thisRequestId]
-        logger.debug("RESPOSNE DICT LENGTH: " + len(response_Dict) + " " + "EVENT DICT LENGTH: " + len(event_Dict))
+        logger.debug("RESPOSNE DICT LENGTH: " + str(len(response_Dict)) + " " + "EVENT DICT LENGTH: " + str(len(event_Dict)))
         return json.dumps(response)
     else:
         return '{"Status": "Time-out"}'
