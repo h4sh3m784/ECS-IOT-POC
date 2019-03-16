@@ -81,6 +81,7 @@ def request_device(device_id):
     if thisRequestId in response_Dict:
         response = response_Dict[thisRequestId]
         del response_Dict[thisRequestId]
+        logger.debug("RESPOSNE DICT LENGTH: " + len(response_Dict) + " " + "EVENT DICT LENGTH: " + len(event_Dict))
         return json.dumps(response)
     else:
         return '{"Status": "Time-out"}'
