@@ -74,14 +74,19 @@ def request_device(device_id):
     event_Dict[thisRequestId] = event #Save waiting event in Dict, waiting for the response.
 
     event.wait(timeout=10) #Wait for 10 seconds before time out, or the event being set()
+    
+    print("event--dict")
+    print(len(event_Dict))
+    print("response--dict")
+    print(len(response_Dict))
 
     del event_Dict[thisRequestId]
 
+    logger.debug("RESPOSNE DICT LENGTH: " + str(len(response_Dict)) + " " + "EVENT DICT LENGTH: " + str(len(event_Dict)))
     #Check if the response_dit contains the request key, if not resposne will be a time-out
     if thisRequestId in response_Dict:
         response = response_Dict[thisRequestId]
         del response_Dict[thisRequestId]
-        logger.debug("RESPOSNE DICT LENGTH: " + str(len(response_Dict)) + " " + "EVENT DICT LENGTH: " + str(len(event_Dict)))
         return json.dumps(response)
     else:
         return '{"Status": "Time-out"}'
