@@ -82,14 +82,13 @@ def request_device(device_id):
 
     del event_Dict[thisRequestId]
 
-    logger.debug("RESPOSNE DICT LENGTH: " + str(len(response_Dict)) + " " + "EVENT DICT LENGTH: " + str(len(event_Dict)))
     #Check if the response_dit contains the request key, if not resposne will be a time-out
     if thisRequestId in response_Dict:
         response = response_Dict[thisRequestId]
         del response_Dict[thisRequestId]
         return json.dumps(response)
     else:
-        return '{"Status": "Time-out"}'
+        return json.loads('{"Status": "Time-out"}')
 
 
 @app.route('/lambda-response/<device_id>', methods=['POST'])
