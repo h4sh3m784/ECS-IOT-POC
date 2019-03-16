@@ -83,7 +83,8 @@ def request_device(device_id):
     print(len(event_Dict))
     print("response--dict")
     print(len(response_Dict))
-    print(response_Dict['MessageInfo']['Timestamp'])
+    timeStamp = response_Dict[thisRequestId]
+    print(timeStamp['MessageInfo']['Timestamp'])
 
     #Check if the response_dit contains the request key, if not resposne will be a time-out
     if thisRequestId in response_Dict:
