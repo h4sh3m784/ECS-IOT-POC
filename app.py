@@ -13,7 +13,8 @@ import requests
 import logging
 import threading
 import sys
-    
+import datetime
+
 #test change
 # logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
@@ -49,7 +50,8 @@ def request_device(device_id):
     #Create Dictionary containing the info about the webserver
     info ={
         "EndPoint": endpoint_url + device_id,
-        "RequestId": thisRequestId
+        "RequestId": thisRequestId,
+        "Timestamp": datetime.datetime.now()
     }
 
     #Create Message for publish
@@ -81,6 +83,7 @@ def request_device(device_id):
     print(len(event_Dict))
     print("response--dict")
     print(len(response_Dict))
+    print(response_Dict['MessageInfo']['Timestamp'])
 
     #Check if the response_dit contains the request key, if not resposne will be a time-out
     if thisRequestId in response_Dict:
@@ -105,6 +108,7 @@ def response_device(device_id):
         event_Dict[key].set()
     else:
         print("key timed out")
+        print(response['MessageInfo']['Timestamp'])
         del response_Dict[key]
 
     return '{"Status": "200"}'
