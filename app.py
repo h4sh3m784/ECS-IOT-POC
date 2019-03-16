@@ -99,9 +99,11 @@ def request_device(device_id):
 def response_device(device_id):
 
     #Set the waiting thread.
+    response = json.loads(request.data)
     key = response['MessageInfo']['RequestId']
+
+    #Make sure the key is in the event dict.
     if key in event_Dict:
-        response = json.loads(request.data)
         response_Dict[key] = response
         event_Dict[key].set()
 
