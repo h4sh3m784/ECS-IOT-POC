@@ -83,11 +83,11 @@ def request_device(device_id):
     print(len(event_Dict))
     print("response--dict")
     print(len(response_Dict))
-    timeStamp = response_Dict[thisRequestId]
-    print(timeStamp['MessageInfo']['Timestamp'])
 
     #Check if the response_dit contains the request key, if not resposne will be a time-out
     if thisRequestId in response_Dict:
+        timeStamp = response_Dict[thisRequestId]
+        print(timeStamp['MessageInfo']['Timestamp'])
         response = response_Dict[thisRequestId]
         del response_Dict[thisRequestId]
         return json.dumps(response)
@@ -98,19 +98,12 @@ def request_device(device_id):
 @app.route('/lambda-response/<device_id>', methods=['POST'])
 def response_device(device_id):
 
-    response = json.loads(request.data)
-
-    key = response['MessageInfo']['RequestId']
-
-    response_Dict[key] = response
-
     #Set the waiting thread.
     if key in event_Dict:
+        response = json.loads(request.data)
+        key = response['MessageInfo']['RequestId']
+        response_Dict[key] = response
         event_Dict[key].set()
-    else:
-        print("key timed out")
-        print(response['MessageInfo']['Timestamp'])
-        del response_Dict[key]
 
     return '{"Status": "200"}'
 
