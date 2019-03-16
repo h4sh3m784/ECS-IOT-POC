@@ -51,7 +51,7 @@ def request_device(device_id):
     info ={
         "EndPoint": endpoint_url + device_id,
         "RequestId": thisRequestId,
-        "Timestamp": datetime.datetime.now()
+        "Timestamp": str(datetime.datetime.now())
     }
 
     #Create Message for publish
@@ -66,7 +66,7 @@ def request_device(device_id):
         topic= pub_topic,
         qos=0,
         payload=pub_message.encode()
-    )    
+    )
     
     # logger.debug("Publishing message: " + json.dumps(pub_message))
     # logger.debug("Waiting for " + thisRequestId)
