@@ -33,7 +33,7 @@ def request_device(device_id):
 
     pub_topic = "api/iot/pub/" + device_id
 
-    request_body = json.loads(request.json)
+    request_body = json.loads(request.data)
 
     thisRequestId = str(uuid.uuid4()) #Create new Request ID
 
@@ -66,7 +66,7 @@ def request_device(device_id):
     event_Dict[thisRequestId] = event #Save waiting event in Dict, waiting for the response.
 
     print("Processing..")
-    
+
     logger.debug("processing..")
 
     event.wait(timeout=10) #Wait for 10 seconds before time out, or the event being set()
