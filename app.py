@@ -20,7 +20,7 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 logger = logging.getLogger()
 
-app = Flask(__name__)
+app = Sanic()
 
 client = boto3.client('iot-data')
 
@@ -39,11 +39,11 @@ event_Dict = dict()
 endpoint_url = requests.get('http://ip.42.pl/raw').text + "/lambda-response/"
 
 @app.route('/device-request/<device_id>', methods=['POST'])
-def request_device(device_id):
+async def request_device(device_id):
 
     pub_topic = "api/iot/pub/" + device_id
 
-    request_body = json.loads(request.data)
+    request_body = json.loads(request.json)
 
     thisRequestId = str(uuid.uuid4()) #Create new Request ID
 
@@ -102,7 +102,7 @@ def request_device(device_id):
 
 
 @app.route('/lambda-response/<device_id>', methods=['POST'])
-def response_device(device_id):
+async def response_device(device_id):
 
     #Set the waiting thread.
     response = json.loads(request.data)
@@ -116,4 +116,4 @@ def response_device(device_id):
     return '{"Status": "200"}'
 
 if __name__ == '__main__':
-    app.run(debug=False, host='0.0.0.0', port=80,   )
+    app.run(debug=False, host='0.0.0.0', port=80)
