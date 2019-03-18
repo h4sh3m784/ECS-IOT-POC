@@ -20,7 +20,7 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 logger = logging.getLogger()
 
-app = Sanic()
+app = Flask("MyApp")
 
 client = boto3.client('iot-data')
 
@@ -115,5 +115,5 @@ async def response_device(device_id):
 
     return '{"Status": "200"}'
 
-if __name__ == '__main__':
-    app.run(debug=False, host='0.0.0.0', port=80)
+# if __name__ == '__main__':
+#     app.run(debug=False, host='0.0.0.0', port=80)
