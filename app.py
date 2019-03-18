@@ -1,9 +1,6 @@
 from flask import Flask
 from flask import request
 
-# from aws_xray_sdk.core import xray_recorder
-# from aws_xray_sdk.ext.flask.middleware import XRayMiddleware
-
 import boto3
 
 import json
@@ -24,13 +21,6 @@ app = Flask("MyApp")
 
 client = boto3.client('iot-data')
 
-#Config
-# xray_recorder.configure(
-#     service='Demo-APP',
-#     sampling_rules=False
-# )
-
-# XRayMiddleware(app, xray_recorder)
 
 response_Dict = dict()
 event_Dict = dict()
@@ -39,7 +29,7 @@ event_Dict = dict()
 endpoint_url = requests.get('http://ip.42.pl/raw').text + "/lambda-response/"
 
 @app.route('/device-request/<device_id>', methods=['POST'])
-async def request_device(device_id):
+def request_device(device_id):
 
     pub_topic = "api/iot/pub/" + device_id
 
@@ -76,6 +66,7 @@ async def request_device(device_id):
     event_Dict[thisRequestId] = event #Save waiting event in Dict, waiting for the response.
 
     print("Processing..")
+    
     logger.debug("processing..")
 
     event.wait(timeout=10) #Wait for 10 seconds before time out, or the event being set()
@@ -102,7 +93,7 @@ async def request_device(device_id):
 
 
 @app.route('/lambda-response/<device_id>', methods=['POST'])
-async def response_device(device_id):
+def response_device(device_id):
 
     #Set the waiting thread.
     response = json.loads(request.data)
