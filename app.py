@@ -16,9 +16,9 @@ import sys
 import datetime
 
 #test change
-# logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
-# logger = logging.getLogger()
+logger = logging.getLogger()
 
 app = Flask(__name__)
 
@@ -76,10 +76,12 @@ def request_device(device_id):
     event_Dict[thisRequestId] = event #Save waiting event in Dict, waiting for the response.
 
     print("Processing..")
+    logger.debug("processing..")
 
     event.wait(timeout=10) #Wait for 10 seconds before time out, or the event being set()
     
     print("Proccessed..")
+    logger.debug("processed")
 
     del event_Dict[thisRequestId]
 
