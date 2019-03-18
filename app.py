@@ -75,8 +75,12 @@ def request_device(device_id):
 
     event_Dict[thisRequestId] = event #Save waiting event in Dict, waiting for the response.
 
+    print("Processing..")
+
     event.wait(timeout=10) #Wait for 10 seconds before time out, or the event being set()
     
+    print("Proccessed..")
+
     del event_Dict[thisRequestId]
 
     print("event--dict")
@@ -110,4 +114,4 @@ def response_device(device_id):
     return '{"Status": "200"}'
 
 if __name__ == '__main__':
-    app.run(debug=False, host='0.0.0.0', port=80,threaded=True)
+    app.run(debug=False, host='0.0.0.0', port=80,   )
