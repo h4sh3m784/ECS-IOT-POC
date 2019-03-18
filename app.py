@@ -21,7 +21,6 @@ app = Flask("MyApp")
 
 client = boto3.client('iot-data')
 
-
 response_Dict = dict()
 event_Dict = dict()
 
@@ -35,6 +34,8 @@ def request_device(device_id):
 
     request_body = json.loads(request.data)
 
+    print(request_body)
+    
     thisRequestId = str(uuid.uuid4()) #Create new Request ID
 
     #Create Dictionary containing the info about the webserver
