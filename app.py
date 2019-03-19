@@ -1,6 +1,9 @@
 from flask import Flask
 from flask import request
 
+from threading import Thread
+from threading import Event
+
 import boto3
 
 import json
@@ -8,7 +11,6 @@ import uuid
 import subprocess
 import requests
 import logging
-import threading
 import sys
 import datetime
 
@@ -17,7 +19,8 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 logger = logging.getLogger()
 
-app = Flask("MyApp")
+requestApp = Flask(__name__)
+responseApp = Flask(__name__)
 
 client = boto3.client('iot-data')
 
@@ -26,21 +29,20 @@ event_Dict = dict()
 
 #GET IP address of the web-server
 endpoint_url = requests.get('http://ip.42.pl/raw').text + "/lambda-response/"
+responsePort = ":81"
 
-@app.route('/device-request/<device_id>', methods=['POST'])
+@requestApp.route('/device-request/<device_id>', methods=['POST'])
 def request_device(device_id):
 
     pub_topic = "api/iot/pub/" + device_id
 
     request_body = json.loads(request.data)
 
-    print(request_body)
-    
     thisRequestId = str(uuid.uuid4()) #Create new Request ID
 
     #Create Dictionary containing the info about the webserver
     info ={
-        "EndPoint": endpoint_url + device_id,
+        "EndPoint": endpoint_url + device_id + responsePort,
         "RequestId": thisRequestId,
         "Timestamp": str(datetime.datetime.now())
     }
@@ -62,18 +64,11 @@ def request_device(device_id):
     # logger.debug("Publishing message: " + json.dumps(pub_message))
     # logger.debug("Waiting for " + thisRequestId)
 
-    event = threading.Event() #Start waiting thread.
+    event = Event() #Start waiting thread.
 
     event_Dict[thisRequestId] = event #Save waiting event in Dict, waiting for the response.
 
-    print("Processing..")
-
-    logger.debug("processing..")
-
     event.wait(timeout=10) #Wait for 10 seconds before time out, or the event being set()
-    
-    print("Proccessed..")
-    logger.debug("processed")
 
     del event_Dict[thisRequestId]
 
@@ -82,7 +77,7 @@ def request_device(device_id):
     print("response--dict")
     print(len(response_Dict))
 
-    #Check if the response_dit contains the request key, if not resposne will be a time-out
+    #Check if the response dictionary contains the request key, else will be a time-out
     if thisRequestId in response_Dict:
         timeStamp = response_Dict[thisRequestId]
         print(timeStamp['MessageInfo']['Timestamp'])
@@ -93,19 +88,29 @@ def request_device(device_id):
         return '{"Status": "Time-out"}'
 
 
-@app.route('/lambda-response/<device_id>', methods=['POST'])
+@responseApp.route('/lambda-response/<device_id>', methods=['POST'])
 def response_device(device_id):
 
     #Set the waiting thread.
     response = json.loads(request.data)
     key = response['MessageInfo']['RequestId']
 
-    #Make sure the key is in the event dict.
+    #Check if the connection didn't make a time-out.
+    #Else don't add the response to the response dictionary. 
     if key in event_Dict:
         response_Dict[key] = response
         event_Dict[key].set()
 
     return '{"Status": "200"}'
 
-# if __name__ == '__main__':
-#     app.run(debug=False, host='0.0.0.0', port=80)
+def runRequestApp():
+    requestApp.run(host='0.0.0.0', port=80)
+
+def runResponseApp():
+    responseApp.run(host='0.0.0.0', port=81)
+
+if __name__ == '__main__':
+    t1 = Thread(target=runRequestApp)
+    t2 = Thread(target=runResponseApp)
+    t1.start()
+    t2.start()
