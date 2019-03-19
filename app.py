@@ -13,6 +13,7 @@ import requests
 import logging
 import sys
 import datetime
+import random
 
 #test change
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
@@ -38,7 +39,9 @@ def requestHealthCheck():
 @requestApp.route('/device-request/<device_id>', methods=['POST'])
 def request_device(device_id):
 
-    pub_topic = "api/iot/pub/" + device_id
+    randomClient = random.randint(1,6)
+
+    pub_topic = "api/iot/pub/" + device_id + str(randomClient)
 
     request_body = json.loads(request.data)
 
