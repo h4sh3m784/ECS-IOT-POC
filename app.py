@@ -28,8 +28,8 @@ response_Dict = dict()
 event_Dict = dict()
 
 #GET IP address of the web-server
-endpoint_url = requests.get('http://ip.42.pl/raw').text + "/lambda-response/"
-responsePort = ":81"
+responsePort = 81
+endpoint_url = requests.get('http://ip.42.pl/raw').text + ":" + str(responsePort) + "/lambda-response/"
 
 @requestApp.route('/device-request/<device_id>', methods=['POST'])
 def request_device(device_id):
@@ -42,7 +42,7 @@ def request_device(device_id):
 
     #Create Dictionary containing the info about the webserver
     info ={
-        "EndPoint": endpoint_url + device_id + responsePort,
+        "EndPoint": endpoint_url + device_id,
         "RequestId": thisRequestId,
         "Timestamp": str(datetime.datetime.now())
     }
