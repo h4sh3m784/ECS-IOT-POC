@@ -28,7 +28,7 @@ response_Dict = dict()
 event_Dict = dict()
 
 #GET IP address of the web-server
-responsePort = 5000
+responsePort = 8080
 endpoint_url = requests.get('http://ip.42.pl/raw').text + ":" + str(responsePort) + "/lambda-response/"
 
 @requestApp.route('/device-request/<device_id>', methods=['POST'])
@@ -106,13 +106,13 @@ def response_device(device_id):
     return '{"Status": "200"}'
 
 def runRequestApp():
-    requestApp.run(host='0.0.0.0', port=5000)
+    requestApp.run(host='0.0.0.0', port=80)
 
-# def runResponseApp():
-#     responseApp.run(host='0.0.0.0', port=5000)
+def runResponseApp():
+    responseApp.run(host='0.0.0.0', port=8080)
 
 if __name__ == '__main__':
     t1 = Thread(target=runRequestApp)
-    # t2 = Thread(target=runResponseApp)
+    t2 = Thread(target=runResponseApp)
     t1.start()
-    # t2.start()
+    t2.start()
