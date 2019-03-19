@@ -31,6 +31,10 @@ event_Dict = dict()
 responsePort = 8080
 endpoint_url = requests.get('http://ip.42.pl/raw').text + ":" + str(responsePort) + "/lambda-response/"
 
+@requestApp.route('/healthcheck', methods=['GET'])
+def requestHealthCheck():
+    return 'OK'
+
 @requestApp.route('/device-request/<device_id>', methods=['POST'])
 def request_device(device_id):
 
@@ -86,7 +90,6 @@ def request_device(device_id):
         return json.dumps(response)
     else:
         return '{"Status": "Time-out"}'
-
 
 @responseApp.route('/lambda-response/<device_id>', methods=['POST'])
 def response_device(device_id):

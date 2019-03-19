@@ -22,7 +22,7 @@ def publish_thread(message):
     xray_recorder.begin_segment("Device-App-Segment")
     xray_recorder.begin_subsegment("Device-App-Publish-SubSegment")
     
-    myAWSIoTMQTTClient.publish(pub_topic, message.payload, 1)
+    myAWSIoTMQTTClient.publish(pub_topic, message.payload, 0)
     
     xray_recorder.end_subsegment()
     xray_recorder.end_segment()
