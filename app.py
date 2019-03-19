@@ -95,6 +95,8 @@ def response_device(device_id):
     response = json.loads(request.data)
     key = response['MessageInfo']['RequestId']
 
+    print(response)
+
     #Check if the connection didn't make a time-out.
     #Else don't add the response to the response dictionary. 
     if key in event_Dict:
