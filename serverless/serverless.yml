@@ -98,3 +98,5 @@ resources:
             Image: !Sub '${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${WebInterfaceRepo}:latest'
             Cpu: 192
             MemoryReservation: 512
+
+            

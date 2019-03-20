@@ -24,6 +24,8 @@ requestApp = Flask(__name__)
 responseApp = Flask(__name__)
 
 client = boto3.client('iot-data')
+cloudwatchClient = boto3.client('cloudwatch')
+
 
 response_Dict = dict()
 event_Dict = dict()
@@ -47,11 +49,13 @@ def request_device(device_id):
 
     thisRequestId = str(uuid.uuid4()) #Create new Request ID
 
+    timeStamp = str(datetime.datetime.now())
+
     #Create Dictionary containing the info about the webserver
     info ={
         "EndPoint": endpoint_url + device_id,
         "RequestId": thisRequestId,
-        "Timestamp": str(datetime.datetime.now())
+        "Timestamp": timeStamp
     }
 
     #Create Message for publish
@@ -86,12 +90,22 @@ def request_device(device_id):
 
     #Check if the response dictionary contains the request key, else will be a time-out
     if thisRequestId in response_Dict:
-        timeStamp = response_Dict[thisRequestId]
-        print(timeStamp['MessageInfo']['Timestamp'])
         response = response_Dict[thisRequestId]
         del response_Dict[thisRequestId]
         return json.dumps(response)
     else:
+        cloudwatchClient.put_metric_data(Namespace='WEBSERVER/LATENCY',
+                                        MetricData=[{
+                                            'MetricName' : 'USER_TIME-OUTS',
+                                            'Dimensions' : [
+                                                {
+                                                    'Name': 'Time-Out',
+                                                    'Value': 'latency'
+                                                }
+                                            ],
+                                            'Unit': 'None',
+                                            'Value': 1.0
+                                        }])
         return '{"Status": "Time-out"}'
 
 @responseApp.route('/lambda-response/<device_id>', methods=['POST'])
