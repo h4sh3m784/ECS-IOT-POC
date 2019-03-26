@@ -15,9 +15,7 @@ node{
 
     stage("Serverless/Cloudformation"){
         if(params.isServerlessActive){
-            sh("echo 'serverless is active..'")
-        }else{
-            sh("echo 'serverless is not active..'")
+            sh("cd serverless && sls deploy -v && cd ..")
         }
     }
     
