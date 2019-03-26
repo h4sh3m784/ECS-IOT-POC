@@ -14,6 +14,8 @@ functions:
 
 resources:
   Resources:
+
+    #IoT Rule
     LambdaIoTRule:
       Type: AWS::IoT::TopicRule
       Properties:
@@ -26,8 +28,9 @@ resources:
             -
               Lambda:
                 FunctionArn: { Fn::GetAtt: [MyECSLambdaFunction, Arn] }
-
-    iotExecutionRole:
+    
+    #IAM IoT Role
+    TaskDefinitionRole:
       Type: AWS::IAM::Role
       Properties:
           AssumeRolePolicyDocument:
@@ -42,61 +45,236 @@ resources:
                 - "sts:AssumeRole"  
           Path: "/"
 
-    iotExecutionPolicy:
+    #IAM IoT Policy
+    TaskDefinitionPolicy:
       Type: AWS::IAM::Policy
-      DependsOn: iotExecutionRole
+      DependsOn: TaskDefinitionRole
       Properties:
-        PolicyName: "iotExecutionPolicy"
+        PolicyName: "TaskDefinitionPolicy"
         PolicyDocument:
           Version: "2012-10-17"
           Statement:
             -
               Effect: "Allow"
-              Action: "iot:*"
+              Action: ["iot:*", "ecs:*","ecr:*", "logs:*", "cloudwatch:*"]
               Resource: "*"
         Roles:
           -
-            !Ref iotExecutionRole
+            !Ref TaskDefinitionRole
 
+    #ECS Cluster
     DevCluster:
       Type: AWS::ECS::Cluster
       Properties:
         ClusterName: "DevCluster"
 
-    XrayDaemonRepo:
-      Type: AWS::ECR::Repository
-      Properties:
-        RepositoryName: "daemon"
+    #ECR Repository
     WebInterfaceRepo:
       Type: AWS::ECR::Repository
       Properties:
         RepositoryName: "webapi"
 
+    #TaskDefinition
     WebInterfaceTaskDefinition:
       Type: AWS::ECS::TaskDefinition
-      DependsOn: [iotExecutionRole, iotExecutionPolicy, XrayDaemonRepo, WebInterfaceRepo]
+      DependsOn: [TaskDefinitionRole, TaskDefinitionPolicy, WebInterfaceRepo]
       Properties:
           Cpu: 512
           Memory: 1024
           Family: "Web-Api"
           NetworkMode: "awsvpc"
           TaskRoleArn: 
-            Ref: iotExecutionRole
-          ExecutionRoleArn: !GetAtt iotExecutionRole.Arn
+            Ref: TaskDefinitionRole
+          ExecutionRoleArn: !Ref TaskDefinitionRole
           RequiresCompatibilities: 
             - FARGATE
           ContainerDefinitions:
-          - Name: "xray-daemon"
-            Image: !Sub '${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${XrayDaemonRepo}:latest'
-            Cpu: 192
-            MemoryReservation: 256
-            PortMappings:
-              - ContainerPort: 2000
-                Protocol: "udp"
-                
           - Name: "WebInterface"
             Image: !Sub '${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${WebInterfaceRepo}:latest'
             Cpu: 192
             MemoryReservation: 512
+            PortMappings:
+              - ContainerPort: 80
+                Protocol: "tcp"
 
+    #TargetGroup
+    WebServerTargetGroup:
+      Type: AWS::ElasticLoadBalancingV2::TargetGroup
+      Properties:
+        HealthCheckIntervalSeconds: 30
+        HealthCheckPath: "/healthcheck"
+        HealthCheckPort: "80"
+        HealthCheckProtocol: "HTTP"
+        HealthCheckTimeoutSeconds: 5
+        HealthyThresholdCount: 5
+        Name: "WebserverTargetGroup"
+        Port: 80
+        Protocol: "HTTP"
+        UnhealthyThresholdCount: 2
+        VpcId: "vpc-b25388d4"
+        TargetType: "ip"
+    
+    #LoadBalancer
+    WebServerLoadBalancer:
+      Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+      Properties:
+        IpAddressType: "ipv4"
+        Name: "WebServerApplicationLoadBalancer"
+        Scheme: "internet-facing"
+        Subnets: ["subnet-c6211f9d", "subnet-33e21f55"]
+        Type: "application"
+
+    WebServerLoadBalancerListener:
+      Type: "AWS::ElasticLoadBalancingV2::Listener"
+      DependsOn: ["WebServerLoadBalancer", "WebServerTargetGroup"]
+      Properties:
+        DefaultActions: #required
+          - Type: "forward"
+            TargetGroupArn: !Ref WebServerTargetGroup
+        LoadBalancerArn: !Ref WebServerLoadBalancer
+        Port: 80
+        Protocol: "HTTP"
+  
+    #ECS Service
+    WebServerService:
+      Type: "AWS::ECS::Service"
+      DependsOn: ["DevCluster","WebInterfaceTaskDefinition", "WebServerLoadBalancerListener"]
+      Properties:
+        Cluster: !Ref DevCluster
+        DesiredCount: 2
+        LaunchType: "FARGATE"
+        LoadBalancers:
+          - 
+            ContainerName: "WebInterface"
+            ContainerPort: 80
+            TargetGroupArn: !Ref WebServerTargetGroup
+               
+        NetworkConfiguration:
+          AwsvpcConfiguration:
+            AssignPublicIp: "ENABLED"
+            SecurityGroups: ["sg-0a74d9863c118b65d"]
+            Subnets: ["subnet-33e21f55", "subnet-c6211f9d"]
+        ServiceName: "WebServerService"
+        SchedulingStrategy: "REPLICA"
+        TaskDefinition: !Ref WebInterfaceTaskDefinition
+
+    #AutoScale Role
+    WebServerAutoScalingRole:
+      Type: "AWS::IAM::Role"
+      Properties:
+        AssumeRolePolicyDocument:
+          Statement:
+            -
+              Effect: "Allow"
+              Principal:
+                Service: ["application-autoscaling.amazonaws.com"]
+              Action: ["sts:AssumeRole"]
+        Path: "/"
+        Policies:
+          - 
+            PolicyName: webserver-autoscaling-policy
+            PolicyDocument:
+              Statement:
+              -
+                Effect: "Allow"
+                Action: ["application-autoscalling:*", "cloudwatch:*","ecs:*"]
+                Resource: "*"
+
+    #AutoScaleTarget
+    WebServerAutoScalingTarget:
+      Type: "AWS::ApplicationAutoScaling::ScalableTarget"
+      DependsOn: ["WebServerAutoScalingRole", "WebServerService"]
+      Properties:
+        MaxCapacity: 8
+        MinCapacity: 2
+        ResourceId:
+          Fn::Join:
+            - "/"
+            - - service
+              - !Ref DevCluster
+              - !GetAtt WebServerService.Name
+        RoleARN: !GetAtt WebServerAutoScalingRole.Arn
+        ScalableDimension: "ecs:service:DesiredCount"
+        ServiceNamespace: "ecs"
+
+    #Scaling Up Policy          
+    ScaleUp:
+      Type: "AWS::ApplicationAutoScaling::ScalingPolicy"
+      DependsOn: ["WebServerAutoScalingTarget"]
+      Properties:
+        PolicyName: webserver-scaling-up-policy #required
+        PolicyType: "StepScaling" #required
+        ScalingTargetId: !Ref "WebServerAutoScalingTarget"
+        StepScalingPolicyConfiguration:
+          Cooldown: 300
+          AdjustmentType: "ChangeInCapacity"
+          StepAdjustments:
+            - MetricIntervalLowerBound: 0
+              MetricIntervalUpperBound: 10
+              ScalingAdjustment: 1
+              
+            - MetricIntervalLowerBound: 10
+              MetricIntervalUpperBound: 20
+              ScalingAdjustment: 2
             
+            - MetricIntervalLowerBound: 20
+              ScalingAdjustment: 3
+    
+    #Scaling Down Policy
+    ScaleDown:
+      Type: "AWS::ApplicationAutoScaling::ScalingPolicy"
+      DependsOn: ["WebServerAutoScalingTarget"]
+      Properties:
+        PolicyName: "webserver-scaling-down-policy"
+        PolicyType: "StepScaling"
+        ScalingTargetId: !Ref WebServerAutoScalingTarget
+        StepScalingPolicyConfiguration:
+          Cooldown: 300
+          AdjustmentType: "ChangeInCapacity"
+          StepAdjustments:
+            - MetricIntervalUpperBound: 0
+              MetricIntervalLowerBound: -10
+              ScalingAdjustment: -1
+
+            - MetricIntervalUpperBound: -10
+              ScalingAdjustment: -2
+
+    #Cloudwatch Scaling Up Alarm
+    CPUAlarmHigh:
+      Type: "AWS::CloudWatch::Alarm"
+      DependsOn: ["ScaleUp"]
+      Properties:
+        AlarmActions:
+          - !Ref ScaleUp
+        AlarmDescription: "scaling up alarm based on CPU metrics"
+        AlarmName: "ecs-webserver->=30%-alarm"
+        ComparisonOperator: "GreaterThanThreshold" #required
+        Dimensions:
+          - Name: !Ref DevCluster
+            Value: !Ref WebServerService
+        EvaluationPeriods: 2
+        MetricName: CPUUtilization
+        Namespace: "AWS/ECS"
+        Period: 300
+        Statistic: "Average"
+        Threshold: 30
+
+    #Cloudwatch Scaling Down Alarm
+    CPUAlarmLow:
+      Type: "AWS::CloudWatch::Alarm"
+      DependsOn: ["ScaleDown"]
+      Properties:
+        AlarmActions:
+          - !Ref "ScaleDown"
+        AlarmDescription: "Scaling down alarm based on CPU metrics"
+        AlarmName: "ecs-webserver-<=20%-alarm"
+        ComparisonOperator: "LowerThanThreshold" #required
+        Dimensions:
+          - Name: !Ref DevCluster
+            Value: !Ref WebServerService
+        EvaluationPeriods: 2
+        MetricName: CPUUtilization
+        Namespace: "AWS/ECS"
+        Period: 300
+        Statistic: "Average"
+        Threshold: 20

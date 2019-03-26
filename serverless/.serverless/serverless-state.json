@@ -108,7 +108,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/ecs-service/dev/1552564684691-2019-03-14T11:58:04.691Z/ecs-service.zip"
+                "S3Key": "serverless/ecs-service/dev/1553505482663-2019-03-25T09:18:02.663Z/ecs-service.zip"
               },
               "FunctionName": "ecs-service-dev-MyECS",
               "Handler": "handler.lambda_handler",
@@ -127,14 +127,14 @@
               "IamRoleLambdaExecution"
             ]
           },
-          "MyECSLambdaVersionaPCdjNhyNaFvN5mdSODiVEHSK1zRfmk8dxfKLaaRFo": {
+          "MyECSLambdaVersiongNYw5NRwOMtahq8xNtnjLz8GW2sfci11XjQcLCLEg": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "MyECSLambdaFunction"
               },
-              "CodeSha256": "sa9VcM4BeqsG3kAmNQ1TIxM3ZPrhUtR6ZWBVocF6/tI="
+              "CodeSha256": "kRCWSR0fD49viqeuf6+1LUDp6OUQcfNQ6EwzLjzBrtY="
             }
           },
           "LambdaIoTRule": {
@@ -159,7 +159,7 @@
               }
             }
           },
-          "iotExecutionRole": {
+          "TaskDefinitionRole": {
             "Type": "AWS::IAM::Role",
             "Properties": {
               "AssumeRolePolicyDocument": {
@@ -181,24 +181,30 @@
               "Path": "/"
             }
           },
-          "iotExecutionPolicy": {
+          "TaskDefinitionPolicy": {
             "Type": "AWS::IAM::Policy",
-            "DependsOn": "iotExecutionRole",
+            "DependsOn": "TaskDefinitionRole",
             "Properties": {
-              "PolicyName": "iotExecutionPolicy",
+              "PolicyName": "TaskDefinitionPolicy",
               "PolicyDocument": {
                 "Version": "2012-10-17",
                 "Statement": [
                   {
                     "Effect": "Allow",
-                    "Action": "iot:*",
+                    "Action": [
+                      "iot:*",
+                      "ecs:*",
+                      "ecr:*",
+                      "logs:*",
+                      "cloudwatch:*"
+                    ],
                     "Resource": "*"
                   }
                 ]
               },
               "Roles": [
                 {
-                  "Ref": "iotExecutionRole"
+                  "Ref": "TaskDefinitionRole"
                 }
               ]
             }
@@ -207,12 +213,6 @@
             "Type": "AWS::ECS::Cluster",
             "Properties": {
               "ClusterName": "DevCluster"
-            }
-          },
-          "XrayDaemonRepo": {
-            "Type": "AWS::ECR::Repository",
-            "Properties": {
-              "RepositoryName": "daemon"
             }
           },
           "WebInterfaceRepo": {
@@ -224,9 +224,8 @@
           "WebInterfaceTaskDefinition": {
             "Type": "AWS::ECS::TaskDefinition",
             "DependsOn": [
-              "iotExecutionRole",
-              "iotExecutionPolicy",
-              "XrayDaemonRepo",
+              "TaskDefinitionRole",
+              "TaskDefinitionPolicy",
               "WebInterfaceRepo"
             ],
             "Properties": {
@@ -235,41 +234,291 @@
               "Family": "Web-Api",
               "NetworkMode": "awsvpc",
               "TaskRoleArn": {
-                "Ref": "iotExecutionRole"
+                "Ref": "TaskDefinitionRole"
               },
               "ExecutionRoleArn": {
-                "Fn::GetAtt": [
-                  "iotExecutionRole",
-                  "Arn"
-                ]
+                "Ref": "TaskDefinitionRole"
               },
               "RequiresCompatibilities": [
                 "FARGATE"
               ],
               "ContainerDefinitions": [
                 {
-                  "Name": "xray-daemon",
-                  "Image": {
-                    "Fn::Sub": "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${XrayDaemonRepo}:latest"
-                  },
-                  "Cpu": 192,
-                  "MemoryReservation": 256,
-                  "PortMappings": [
-                    {
-                      "ContainerPort": 2000,
-                      "Protocol": "udp"
-                    }
-                  ]
-                },
-                {
                   "Name": "WebInterface",
                   "Image": {
                     "Fn::Sub": "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${WebInterfaceRepo}:latest"
                   },
                   "Cpu": 192,
-                  "MemoryReservation": 512
+                  "MemoryReservation": 512,
+                  "PortMappings": [
+                    {
+                      "ContainerPort": 80,
+                      "Protocol": "tcp"
+                    }
+                  ]
                 }
               ]
+            }
+          },
+          "WebServerTargetGroup": {
+            "Type": "AWS::ElasticLoadBalancingV2::TargetGroup",
+            "Properties": {
+              "HealthCheckIntervalSeconds": 30,
+              "HealthCheckPath": "/healthcheck",
+              "HealthCheckPort": "80",
+              "HealthCheckProtocol": "HTTP",
+              "HealthCheckTimeoutSeconds": 5,
+              "HealthyThresholdCount": 5,
+              "Name": "WebserverTargetGroup",
+              "Port": 80,
+              "Protocol": "HTTP",
+              "UnhealthyThresholdCount": 2,
+              "VpcId": "vpc-b25388d4",
+              "TargetType": "ip"
+            }
+          },
+          "WebServerLoadBalancer": {
+            "Type": "AWS::ElasticLoadBalancingV2::LoadBalancer",
+            "Properties": {
+              "IpAddressType": "ipv4",
+              "Name": "WebServerApplicationLoadBalancer",
+              "Scheme": "internet-facing",
+              "Subnets": [
+                "subnet-c6211f9d",
+                "subnet-33e21f55"
+              ],
+              "Type": "application"
+            }
+          },
+          "WebServerLoadBalancerListener": {
+            "Type": "AWS::ElasticLoadBalancingV2::Listener",
+            "DependsOn": [
+              "WebServerLoadBalancer",
+              "WebServerTargetGroup"
+            ],
+            "Properties": {
+              "DefaultActions": [
+                {
+                  "Type": "forward",
+                  "TargetGroupArn": {
+                    "Ref": "WebServerTargetGroup"
+                  }
+                }
+              ],
+              "LoadBalancerArn": {
+                "Ref": "WebServerLoadBalancer"
+              },
+              "Port": 80,
+              "Protocol": "HTTP"
+            }
+          },
+          "WebServerService": {
+            "Type": "AWS::ECS::Service",
+            "DependsOn": [
+              "DevCluster",
+              "WebInterfaceTaskDefinition",
+              "WebServerLoadBalancerListener"
+            ],
+            "Properties": {
+              "Cluster": {
+                "Ref": "DevCluster"
+              },
+              "DesiredCount": 2,
+              "LaunchType": "FARGATE",
+              "LoadBalancers": [
+                {
+                  "ContainerName": "WebInterface",
+                  "ContainerPort": 80,
+                  "TargetGroupArn": {
+                    "Ref": "WebServerTargetGroup"
+                  }
+                }
+              ],
+              "NetworkConfiguration": {
+                "AwsvpcConfiguration": {
+                  "AssignPublicIp": "ENABLED",
+                  "SecurityGroups": [
+                    "sg-0a74d9863c118b65d"
+                  ],
+                  "Subnets": [
+                    "subnet-33e21f55",
+                    "subnet-c6211f9d"
+                  ]
+                }
+              },
+              "ServiceName": "WebServerService",
+              "SchedulingStrategy": "REPLICA",
+              "TaskDefinition": {
+                "Ref": "WebInterfaceTaskDefinition"
+              }
+            }
+          },
+          "WebServerAutoScalingRole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+              "AssumeRolePolicyDocument": {
+                "Statement": [
+                  {
+                    "Effect": "Allow",
+                    "Principal": {
+                      "Service": [
+                        "application-autoscaling.amazonaws.com"
+                      ]
+                    },
+                    "Action": [
+                      "sts:AssumeRole"
+                    ]
+                  }
+                ]
+              },
+              "Path": "/",
+              "Policies": [
+                {
+                  "PolicyName": "webserver-autoscaling-policy",
+                  "PolicyDocument": {
+                    "Statement": [
+                      {
+                        "Effect": "Allow",
+                        "Action": [
+                          "application-autoscalling:*",
+                          "cloudwatch:*",
+                          "ecs:*"
+                        ],
+                        "Resource": "*"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          "WebServerAutoScalingTarget": {
+            "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
+            "DependsOn": [
+              "WebServerAutoScalingRole",
+              "WebServerService"
+            ],
+            "Properties": {
+              "MaxCapacity": 8,
+              "MinCapacity": 2,
+              "ResourceId": {
+                "Fn::Join": [
+                  "/",
+                  [
+                    "service",
+                    {
+                      "Ref": "DevCluster"
+                    },
+                    {
+                      "Fn::GetAtt": [
+                        "WebServerService",
+                        "Name"
+                      ]
+                    }
+                  ]
+                ]
+              },
+              "RoleARN": {
+                "Fn::GetAtt": [
+                  "WebServerAutoScalingRole",
+                  "Arn"
+                ]
+              },
+              "ScalableDimension": "ecs:service:DesiredCount",
+              "ServiceNamespace": "ecs"
+            }
+          },
+          "ScaleUp": {
+            "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
+            "DependsOn": [
+              "WebServerAutoScalingTarget"
+            ],
+            "Properties": {
+              "PolicyName": "webserver-scaling-up-policy",
+              "PolicyType": "StepScaling",
+              "ScalingTargetId": {
+                "Ref": "WebServerAutoScalingTarget"
+              },
+              "StepScalingPolicyConfiguration": {
+                "Cooldown": 300,
+                "AdjustmentType": "ChangeInCapacity",
+                "StepAdjustments": [
+                  {
+                    "MetricIntervalLowerBound": 0,
+                    "MetricIntervalUpperBound": 10,
+                    "ScalingAdjustment": 1
+                  },
+                  {
+                    "MetricIntervalLowerBound": 10,
+                    "MetricIntervalUpperBound": 20,
+                    "ScalingAdjustment": 2
+                  },
+                  {
+                    "MetricIntervalLowerBound": 20,
+                    "ScalingAdjustment": 3
+                  }
+                ]
+              }
+            }
+          },
+          "ScaleDown": {
+            "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
+            "DependsOn": [
+              "WebServerAutoScalingTarget"
+            ],
+            "Properties": {
+              "PolicyName": "webserver-scaling-down-policy",
+              "PolicyType": "StepScaling",
+              "ScalingTargetId": {
+                "Ref": "WebServerAutoScalingTarget"
+              },
+              "StepScalingPolicyConfiguration": {
+                "Cooldown": 300,
+                "AdjustmentType": "ChangeInCapacity",
+                "StepAdjustments": [
+                  {
+                    "MetricIntervalUpperBound": 0,
+                    "MetricIntervalLowerBound": -10,
+                    "ScalingAdjustment": -1
+                  },
+                  {
+                    "MetricIntervalUpperBound": -10,
+                    "ScalingAdjustment": -2
+                  }
+                ]
+              }
+            }
+          },
+          "CPUAlarmHigh": {
+            "Type": "AWS::CloudWatch::Alarm",
+            "DependsOn": [
+              "ScaleUp"
+            ],
+            "Properties": {
+              "AlarmActions": [
+                {
+                  "Ref": "ScaleUp"
+                }
+              ],
+              "AlarmDescription": "scaling up alarm based on CPU metrics",
+              "AlarmName": "ecs-webserver->=30%-alarm",
+              "ComparisonOperator": "GreaterThanThreshold",
+              "Dimensions": [
+                {
+                  "Name": {
+                    "Ref": "DevCluster"
+                  },
+                  "Value": {
+                    "Ref": "WebServerService"
+                  }
+                }
+              ],
+              "EvaluationPeriods": 2,
+              "MetricName": "CPUUtilization",
+              "Namespace": "AWS/ECS",
+              "Period": 300,
+              "Statistic": "Average",
+              "Threshold": 30
             }
           }
         },
@@ -282,7 +531,7 @@
           "MyECSLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "MyECSLambdaVersionaPCdjNhyNaFvN5mdSODiVEHSK1zRfmk8dxfKLaaRFo"
+              "Ref": "MyECSLambdaVersiongNYw5NRwOMtahq8xNtnjLz8GW2sfci11XjQcLCLEg"
             }
           }
         }
@@ -342,7 +591,7 @@
             }
           }
         },
-        "iotExecutionRole": {
+        "TaskDefinitionRole": {
           "Type": "AWS::IAM::Role",
           "Properties": {
             "AssumeRolePolicyDocument": {
@@ -364,24 +613,30 @@
             "Path": "/"
           }
         },
-        "iotExecutionPolicy": {
+        "TaskDefinitionPolicy": {
           "Type": "AWS::IAM::Policy",
-          "DependsOn": "iotExecutionRole",
+          "DependsOn": "TaskDefinitionRole",
           "Properties": {
-            "PolicyName": "iotExecutionPolicy",
+            "PolicyName": "TaskDefinitionPolicy",
             "PolicyDocument": {
               "Version": "2012-10-17",
               "Statement": [
                 {
                   "Effect": "Allow",
-                  "Action": "iot:*",
+                  "Action": [
+                    "iot:*",
+                    "ecs:*",
+                    "ecr:*",
+                    "logs:*",
+                    "cloudwatch:*"
+                  ],
                   "Resource": "*"
                 }
               ]
             },
             "Roles": [
               {
-                "Ref": "iotExecutionRole"
+                "Ref": "TaskDefinitionRole"
               }
             ]
           }
@@ -390,12 +645,6 @@
           "Type": "AWS::ECS::Cluster",
           "Properties": {
             "ClusterName": "DevCluster"
-          }
-        },
-        "XrayDaemonRepo": {
-          "Type": "AWS::ECR::Repository",
-          "Properties": {
-            "RepositoryName": "daemon"
           }
         },
         "WebInterfaceRepo": {
@@ -407,9 +656,8 @@
         "WebInterfaceTaskDefinition": {
           "Type": "AWS::ECS::TaskDefinition",
           "DependsOn": [
-            "iotExecutionRole",
-            "iotExecutionPolicy",
-            "XrayDaemonRepo",
+            "TaskDefinitionRole",
+            "TaskDefinitionPolicy",
             "WebInterfaceRepo"
           ],
           "Properties": {
@@ -418,41 +666,291 @@
             "Family": "Web-Api",
             "NetworkMode": "awsvpc",
             "TaskRoleArn": {
-              "Ref": "iotExecutionRole"
+              "Ref": "TaskDefinitionRole"
             },
             "ExecutionRoleArn": {
-              "Fn::GetAtt": [
-                "iotExecutionRole",
-                "Arn"
-              ]
+              "Ref": "TaskDefinitionRole"
             },
             "RequiresCompatibilities": [
               "FARGATE"
             ],
             "ContainerDefinitions": [
               {
-                "Name": "xray-daemon",
-                "Image": {
-                  "Fn::Sub": "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${XrayDaemonRepo}:latest"
-                },
-                "Cpu": 192,
-                "MemoryReservation": 256,
-                "PortMappings": [
-                  {
-                    "ContainerPort": 2000,
-                    "Protocol": "udp"
-                  }
-                ]
-              },
-              {
                 "Name": "WebInterface",
                 "Image": {
                   "Fn::Sub": "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${WebInterfaceRepo}:latest"
                 },
                 "Cpu": 192,
-                "MemoryReservation": 512
+                "MemoryReservation": 512,
+                "PortMappings": [
+                  {
+                    "ContainerPort": 80,
+                    "Protocol": "tcp"
+                  }
+                ]
               }
             ]
+          }
+        },
+        "WebServerTargetGroup": {
+          "Type": "AWS::ElasticLoadBalancingV2::TargetGroup",
+          "Properties": {
+            "HealthCheckIntervalSeconds": 30,
+            "HealthCheckPath": "/healthcheck",
+            "HealthCheckPort": "80",
+            "HealthCheckProtocol": "HTTP",
+            "HealthCheckTimeoutSeconds": 5,
+            "HealthyThresholdCount": 5,
+            "Name": "WebserverTargetGroup",
+            "Port": 80,
+            "Protocol": "HTTP",
+            "UnhealthyThresholdCount": 2,
+            "VpcId": "vpc-b25388d4",
+            "TargetType": "ip"
+          }
+        },
+        "WebServerLoadBalancer": {
+          "Type": "AWS::ElasticLoadBalancingV2::LoadBalancer",
+          "Properties": {
+            "IpAddressType": "ipv4",
+            "Name": "WebServerApplicationLoadBalancer",
+            "Scheme": "internet-facing",
+            "Subnets": [
+              "subnet-c6211f9d",
+              "subnet-33e21f55"
+            ],
+            "Type": "application"
+          }
+        },
+        "WebServerLoadBalancerListener": {
+          "Type": "AWS::ElasticLoadBalancingV2::Listener",
+          "DependsOn": [
+            "WebServerLoadBalancer",
+            "WebServerTargetGroup"
+          ],
+          "Properties": {
+            "DefaultActions": [
+              {
+                "Type": "forward",
+                "TargetGroupArn": {
+                  "Ref": "WebServerTargetGroup"
+                }
+              }
+            ],
+            "LoadBalancerArn": {
+              "Ref": "WebServerLoadBalancer"
+            },
+            "Port": 80,
+            "Protocol": "HTTP"
+          }
+        },
+        "WebServerService": {
+          "Type": "AWS::ECS::Service",
+          "DependsOn": [
+            "DevCluster",
+            "WebInterfaceTaskDefinition",
+            "WebServerLoadBalancerListener"
+          ],
+          "Properties": {
+            "Cluster": {
+              "Ref": "DevCluster"
+            },
+            "DesiredCount": 2,
+            "LaunchType": "FARGATE",
+            "LoadBalancers": [
+              {
+                "ContainerName": "WebInterface",
+                "ContainerPort": 80,
+                "TargetGroupArn": {
+                  "Ref": "WebServerTargetGroup"
+                }
+              }
+            ],
+            "NetworkConfiguration": {
+              "AwsvpcConfiguration": {
+                "AssignPublicIp": "ENABLED",
+                "SecurityGroups": [
+                  "sg-0a74d9863c118b65d"
+                ],
+                "Subnets": [
+                  "subnet-33e21f55",
+                  "subnet-c6211f9d"
+                ]
+              }
+            },
+            "ServiceName": "WebServerService",
+            "SchedulingStrategy": "REPLICA",
+            "TaskDefinition": {
+              "Ref": "WebInterfaceTaskDefinition"
+            }
+          }
+        },
+        "WebServerAutoScalingRole": {
+          "Type": "AWS::IAM::Role",
+          "Properties": {
+            "AssumeRolePolicyDocument": {
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Principal": {
+                    "Service": [
+                      "application-autoscaling.amazonaws.com"
+                    ]
+                  },
+                  "Action": [
+                    "sts:AssumeRole"
+                  ]
+                }
+              ]
+            },
+            "Path": "/",
+            "Policies": [
+              {
+                "PolicyName": "webserver-autoscaling-policy",
+                "PolicyDocument": {
+                  "Statement": [
+                    {
+                      "Effect": "Allow",
+                      "Action": [
+                        "application-autoscalling:*",
+                        "cloudwatch:*",
+                        "ecs:*"
+                      ],
+                      "Resource": "*"
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        "WebServerAutoScalingTarget": {
+          "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
+          "DependsOn": [
+            "WebServerAutoScalingRole",
+            "WebServerService"
+          ],
+          "Properties": {
+            "MaxCapacity": 8,
+            "MinCapacity": 2,
+            "ResourceId": {
+              "Fn::Join": [
+                "/",
+                [
+                  "service",
+                  {
+                    "Ref": "DevCluster"
+                  },
+                  {
+                    "Fn::GetAtt": [
+                      "WebServerService",
+                      "Name"
+                    ]
+                  }
+                ]
+              ]
+            },
+            "RoleARN": {
+              "Fn::GetAtt": [
+                "WebServerAutoScalingRole",
+                "Arn"
+              ]
+            },
+            "ScalableDimension": "ecs:service:DesiredCount",
+            "ServiceNamespace": "ecs"
+          }
+        },
+        "ScaleUp": {
+          "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
+          "DependsOn": [
+            "WebServerAutoScalingTarget"
+          ],
+          "Properties": {
+            "PolicyName": "webserver-scaling-up-policy",
+            "PolicyType": "StepScaling",
+            "ScalingTargetId": {
+              "Ref": "WebServerAutoScalingTarget"
+            },
+            "StepScalingPolicyConfiguration": {
+              "Cooldown": 300,
+              "AdjustmentType": "ChangeInCapacity",
+              "StepAdjustments": [
+                {
+                  "MetricIntervalLowerBound": 0,
+                  "MetricIntervalUpperBound": 10,
+                  "ScalingAdjustment": 1
+                },
+                {
+                  "MetricIntervalLowerBound": 10,
+                  "MetricIntervalUpperBound": 20,
+                  "ScalingAdjustment": 2
+                },
+                {
+                  "MetricIntervalLowerBound": 20,
+                  "ScalingAdjustment": 3
+                }
+              ]
+            }
+          }
+        },
+        "ScaleDown": {
+          "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
+          "DependsOn": [
+            "WebServerAutoScalingTarget"
+          ],
+          "Properties": {
+            "PolicyName": "webserver-scaling-down-policy",
+            "PolicyType": "StepScaling",
+            "ScalingTargetId": {
+              "Ref": "WebServerAutoScalingTarget"
+            },
+            "StepScalingPolicyConfiguration": {
+              "Cooldown": 300,
+              "AdjustmentType": "ChangeInCapacity",
+              "StepAdjustments": [
+                {
+                  "MetricIntervalUpperBound": 0,
+                  "MetricIntervalLowerBound": -10,
+                  "ScalingAdjustment": -1
+                },
+                {
+                  "MetricIntervalUpperBound": -10,
+                  "ScalingAdjustment": -2
+                }
+              ]
+            }
+          }
+        },
+        "CPUAlarmHigh": {
+          "Type": "AWS::CloudWatch::Alarm",
+          "DependsOn": [
+            "ScaleUp"
+          ],
+          "Properties": {
+            "AlarmActions": [
+              {
+                "Ref": "ScaleUp"
+              }
+            ],
+            "AlarmDescription": "scaling up alarm based on CPU metrics",
+            "AlarmName": "ecs-webserver->=30%-alarm",
+            "ComparisonOperator": "GreaterThanThreshold",
+            "Dimensions": [
+              {
+                "Name": {
+                  "Ref": "DevCluster"
+                },
+                "Value": {
+                  "Ref": "WebServerService"
+                }
+              }
+            ],
+            "EvaluationPeriods": 2,
+            "MetricName": "CPUUtilization",
+            "Namespace": "AWS/ECS",
+            "Period": 300,
+            "Statistic": "Average",
+            "Threshold": 30
           }
         }
       },
@@ -462,7 +960,7 @@
     "artifact": "/home/h4sh3m/Documents/git/ECS-IOT-POC/serverless/.serverless/ecs-service.zip"
   },
   "package": {
-    "artifactDirectoryName": "serverless/ecs-service/dev/1552564684691-2019-03-14T11:58:04.691Z",
+    "artifactDirectoryName": "serverless/ecs-service/dev/1553505482663-2019-03-25T09:18:02.663Z",
     "artifact": "ecs-service.zip"
   }
 }
