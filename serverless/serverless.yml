@@ -14,7 +14,7 @@ functions:
 
 resources:
   Resources:
-
+    
     #IoT Rule
     LambdaIoTRule:
       Type: AWS::IoT::TopicRule
@@ -44,23 +44,16 @@ resources:
               Action:
                 - "sts:AssumeRole"  
           Path: "/"
-
-    #IAM IoT Policy
-    TaskDefinitionPolicy:
-      Type: AWS::IAM::Policy
-      DependsOn: TaskDefinitionRole
-      Properties:
-        PolicyName: "TaskDefinitionPolicy"
-        PolicyDocument:
-          Version: "2012-10-17"
-          Statement:
+          Policies:
             -
-              Effect: "Allow"
-              Action: ["iot:*", "ecs:*","ecr:*", "logs:*", "cloudwatch:*"]
-              Resource: "*"
-        Roles:
-          -
-            !Ref TaskDefinitionRole
+              PolicyName: "TaskDefinitionPolicy"
+              PolicyDocument:
+                Version: "2012-10-17"
+                Statement:
+                  -
+                    Effect: "Allow"
+                    Action: ["iot:*", "ecs:*","ecr:*", "logs:*", "cloudwatch:*"]
+                    Resource: "*"
 
     #ECS Cluster
     DevCluster:
@@ -77,7 +70,7 @@ resources:
     #TaskDefinition
     WebInterfaceTaskDefinition:
       Type: AWS::ECS::TaskDefinition
-      DependsOn: [TaskDefinitionRole, TaskDefinitionPolicy, WebInterfaceRepo]
+      DependsOn: [TaskDefinitionRole, WebInterfaceRepo]
       Properties:
           Cpu: 512
           Memory: 1024
@@ -111,7 +104,7 @@ resources:
         Port: 80
         Protocol: "HTTP"
         UnhealthyThresholdCount: 2
-        VpcId: "vpc-b25388d4"
+        VpcId: ${AWS_VPC}
         TargetType: "ip"
     
     #LoadBalancer
@@ -121,7 +114,7 @@ resources:
         IpAddressType: "ipv4"
         Name: "WebServerApplicationLoadBalancer"
         Scheme: "internet-facing"
-        Subnets: ["subnet-c6211f9d", "subnet-33e21f55"]
+        Subnets: ["${AWS_SUBNET_1}", "${AWS_SUBNET_2}"]
         Type: "application"
 
     WebServerLoadBalancerListener:
@@ -138,7 +131,7 @@ resources:
     #ECS Service
     WebServerService:
       Type: "AWS::ECS::Service"
-      DependsOn: ["DevCluster","WebInterfaceTaskDefinition", "WebServerLoadBalancerListener"]
+      DependsOn: ["DevCluster","WebInterfaceTaskDefinition","ECSSecurityGroup", "WebServerLoadBalancerListener"]
       Properties:
         Cluster: !Ref DevCluster
         DesiredCount: 2
@@ -152,12 +145,37 @@ resources:
         NetworkConfiguration:
           AwsvpcConfiguration:
             AssignPublicIp: "ENABLED"
-            SecurityGroups: ["sg-0a74d9863c118b65d"]
-            Subnets: ["subnet-33e21f55", "subnet-c6211f9d"]
+            SecurityGroups: !Ref ECSSecurityGroup
+            Subnets: ["${AWS_SUBNET_1}", "${AWS_SUBNET_2}"]
         ServiceName: "WebServerService"
         SchedulingStrategy: "REPLICA"
         TaskDefinition: !Ref WebInterfaceTaskDefinition
-
+        
+    #ECS Service SecurityGroup
+    ECSSecurityGroup:
+      Type: "AWS::EC2::SecurityGroup"
+      Properties:
+        GroupDescription: "Internetfacing group" #required
+        GroupName: "SSH and HTTP"
+        SecurityGroupEgress:
+          - IpProtocol: "tcp"
+            FromPort: '22'
+            ToPort: '22'
+            CidrIp: 0.0.0.0/0
+          - IpProtocol: "tcp"
+            FromPort: '80'
+            ToPort: '80'
+            CidrIp: 0.0.0.0/0
+          - IpProtocol: "tcp"
+            FromPort: '8080'
+            ToPort: '8080'
+            CidrIp: 0.0.0.0/0
+        SecurityGroupIngress:
+          - IpProtocol: -1
+            CidrIp: 0.0.0.0/0
+        VpcId: ${AWS_VPC}
+    
+    
     #AutoScale Role
     WebServerAutoScalingRole:
       Type: "AWS::IAM::Role"
@@ -257,7 +275,7 @@ resources:
         Namespace: "AWS/ECS"
         Period: 300
         Statistic: "Average"
-        Threshold: 30
+        Threshold: 20
 
     #Cloudwatch Scaling Down Alarm
     CPUAlarmLow:

@@ -1,4 +1,5 @@
 node{
+
     def app
 
     //Much code
@@ -10,7 +11,15 @@ node{
         /* This builds the actual image: synonymous to
             docker build on the command line */
             app = docker.build("jenkins-demo")
-    }   
+    }
+
+    stage("Serverless/Cloudformation"){
+        if(isServerlessActive){
+            sh("echo 'serverless is active..'")
+        }else{
+            sh("echo 'serverless is not active..'")
+        }
+    }
     
     stage('Push To AWS Repo'){
         
