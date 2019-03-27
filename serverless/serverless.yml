@@ -104,7 +104,7 @@ resources:
         Port: 80
         Protocol: "HTTP"
         UnhealthyThresholdCount: 2
-        VpcId: ${AWS_VPC}
+        VpcId: "${AWS_VPC}"
         TargetType: "ip"
     
     #LoadBalancer
@@ -173,7 +173,7 @@ resources:
         SecurityGroupIngress:
           - IpProtocol: -1
             CidrIp: 0.0.0.0/0
-        VpcId: ${AWS_VPC}
+        VpcId: "${AWS_VPC}"
     
     
     #AutoScale Role
