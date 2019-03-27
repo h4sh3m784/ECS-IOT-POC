@@ -100,7 +100,7 @@ resources:
         HealthCheckProtocol: "HTTP"
         HealthCheckTimeoutSeconds: 5
         HealthyThresholdCount: 5
-        Name: "WebserverTargetGroup"
+        Name: "WebTargetGroup"
         Port: 80
         Protocol: "HTTP"
         UnhealthyThresholdCount: 2
