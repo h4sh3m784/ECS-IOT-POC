@@ -120,7 +120,7 @@ resources:
         Port: 80
         Protocol: "HTTP"
         UnhealthyThresholdCount: 2
-        VpcId: "${env:AWS_VPC}"
+        VpcId: "vpc-b25388d4"
         TargetType: "ip"
     
     #LoadBalancer
@@ -130,7 +130,7 @@ resources:
         IpAddressType: "ipv4"
         Name: "WebServerApplicationLoadBalancer"
         Scheme: "internet-facing"
-        Subnets: ["${env:AWS_SUBNET_1}", "${env:AWS_SUBNET_2}"]
+        Subnets: ["subnet-c6211f9d", "subnet-33e21f55"]
         Type: "application"
 
     WebServerLoadBalancerListener:
@@ -162,7 +162,7 @@ resources:
           AwsvpcConfiguration:
             AssignPublicIp: "ENABLED"
             SecurityGroups: !Ref ECSSecurityGroup
-            Subnets: ["${env:AWS_SUBNET_1}", "${env:AWS_SUBNET_2}"]
+            Subnets: ["subnet-c6211f9d", "subnet-33e21f55"]
         ServiceName: "WebServerService"
         SchedulingStrategy: "REPLICA"
         TaskDefinition: !Ref WebInterfaceTaskDefinition
@@ -189,7 +189,7 @@ resources:
         SecurityGroupIngress:
           - IpProtocol: -1
             CidrIp: 0.0.0.0/0
-        VpcId: "${AWS_VPC}"
+        VpcId: "vpc-b25388d4"
     
 
     #AutoScale Role
