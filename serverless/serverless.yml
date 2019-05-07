@@ -26,7 +26,7 @@ resources:
           RuleDisabled: "false"
           Sql: >-
             SELECT * FROM '$aws/events/presence/#'
-          Action:
+          Actions:
             -
               Lambda:
                 FunctionArn: { Fn::GetAtt: [IotDeviceConnectionLambdaFunction, Arn]}
