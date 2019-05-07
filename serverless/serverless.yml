@@ -161,7 +161,7 @@ resources:
         NetworkConfiguration:
           AwsvpcConfiguration:
             AssignPublicIp: "ENABLED"
-            SecurityGroups: !Ref ECSSecurityGroup
+            SecurityGroups: [!Ref ECSSecurityGroup]
             Subnets: ["subnet-c6211f9d", "subnet-33e21f55"]
         ServiceName: "WebServerService"
         SchedulingStrategy: "REPLICA"
