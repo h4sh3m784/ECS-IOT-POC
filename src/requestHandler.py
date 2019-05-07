@@ -6,7 +6,7 @@ from flask import Blueprint
 from flask import request
 from threading import Event
 from config import info
-from responseHandler import responses
+import responseHandler
 
 requestView = Blueprint('requestView', __name__)
 
@@ -16,31 +16,31 @@ events = dict()
 
 endpoint = info['Endpoint']
 
-# def response(id):
-#     if id in responses: #Check if response arrived
-#         response = responses[id]
-#         del responses[id] #Delete response
-#         return json.dumps(response)
-#     else:
-#         return '{"status": "time-out"}'
+def response(id):
+    if id in responseHandler.responses: #Check if response arrived
+        response = responseHandler.responses[id]
+        del responseHandler.responses[id] #Delete response
+        return json.dumps(response)
+    else:
+        return '{"status": "time-out"}'
 
-# def wait_for_event(time, id):
-#     event = Event() #Create new event
-#     events[requestId] = event #Save the event
-#     event.wait(timeout=time) #Wait for event to be set() in the responseHandler.py
-#     del events[id]
+def wait_for_event(time, id):
+    event = Event() #Create new event
+    events[requestId] = event #Save the event
+    event.wait(timeout=time) #Wait for event to be set() in the responseHandler.py
+    del events[id]
 
-# def publish_to_topic(topic,message):
+def publish_to_topic(topic,message):
     
-#     id = str(uuid.uuid4())
+    id = str(uuid.uuid4())
 
-#     message['RequestId'] = id
+    message['RequestId'] = id
 
-#     message = json.dumps(message)
+    message = json.dumps(message)
 
-#     client.publish(topic=topic,qos=0,playload=message.encode())
+    client.publish(topic=topic,qos=0,playload=message.encode())
 
-#     return id
+    return id
 
 @requestView.route('/healthcheck',methods=['POST'])
 def healthCheck():
@@ -49,33 +49,31 @@ def healthCheck():
 @requestView.route('/rpc', methods=['POST'])
 def requestRPC():
 
-    # request = json.loads(request.data)
+    request = json.loads(request.data)
 
-    # topic = "api/iot/rpc" + request['clientId']
+    topic = "api/iot/rpc" + request['clientId']
     
-    # id = publish_to_topic(topic, request)
+    id = publish_to_topic(topic, request)
 
-    # wait_for_event(60, id)
+    wait_for_event(60, id)
 
-    # return response(id)
-    return "helloworld"
+    return response(id)
 
 @requestView.route('/device/<deviceId>', methods=['POST'])
 def requestDevice(deviceId):
-    return "helloworld"
 
-    # requestBody = json.loads(request.data)
+    requestBody = json.loads(request.data)
 
-    # topic = "api/iot/pub/" + deviceId
+    topic = "api/iot/pub/" + deviceId
     
-    # message = {
-    #     "DeviceId" : deviceId,
-    #     "Message": requestBody,
-    #     'Endpoint': info['Endpoint'] + deviceId
-    # }
+    message = {
+        "DeviceId" : deviceId,
+        "Message": requestBody,
+        'Endpoint': info['Endpoint'] + deviceId
+    }
 
-    # id = publish_to_topic(topic, message)
+    id = publish_to_topic(topic, message)
     
-    # wait_for_event(10,id)
+    wait_for_event(10,id)
 
-    # return response(id)
+    return response(id)

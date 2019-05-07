@@ -1,8 +1,8 @@
 import json
+import requestHandler
 
 from flask import Blueprint
 from flask import request
-from requestHandler import events
 
 responseView = Blueprint('responseView', __name__)
 
@@ -15,7 +15,7 @@ def responseDevice(deviceId):
 
     key = response['MessageInfo']['RequestId']
 
-    if key in events: #Check if event hasn't time-out
+    if key in requestHandler.events: #Check if event hasn't time-out
         responses[key] = response #Save response
-        events[key].set() #Set the waiting event
+        requestHandler.events[key].set() #Set the waiting event
     return '{"status": "200"}'

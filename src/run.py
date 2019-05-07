@@ -1,13 +1,14 @@
 from flask import Flask
 from threading import Thread
-from requestHandler import requestView
-from responseHandler import responseView
+
+import requestHandler
+import responseHandler
 
 requestApp = Flask(__name__)
-requestApp.register_blueprint(requestView)
+requestApp.register_blueprint(requestHandler.requestView)
 
 responseApp = Flask(__name__)
-requestApp.request_blueprint(responseView)
+requestApp.request_blueprint(responseHandler.responseView)
 
 def runRequestApp():
     requestApp.run(host='0.0.0.0', port=80)
