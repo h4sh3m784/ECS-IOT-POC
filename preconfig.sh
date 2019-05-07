@@ -1,4 +1,5 @@
 #!/bin/bash
+
 echo "-------------PRE-CONFIG---------------"
 
-python /src/run.py
+python src/run.py
