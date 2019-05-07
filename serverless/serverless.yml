@@ -189,7 +189,7 @@ resources:
         SecurityGroupIngress:
           - IpProtocol: -1
             CidrIp: 0.0.0.0/0
-        # VpcId: "${AWS_VPC}"
+        VpcId: "vpc-b25388d4"
     
 
     #AutoScale Role
