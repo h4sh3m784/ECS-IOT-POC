@@ -17,6 +17,7 @@ functions:
 resources:
   Resources:
     
+    #IoT RPC Device connection Rule
     IoTDeviceConnectionRule:
       Type: AWS::IoT::TopicRule
       Properties:
@@ -28,7 +29,7 @@ resources:
           Action:
             -
               Lambda:
-                FunctionArn: { Fn::GetAtt: [IotDeviceConnection, Arn]}
+                FunctionArn: { Fn::GetAtt: [IotDeviceConnectionLambdaFunction, Arn]}
 
     #IoT Rule
     LambdaIoTRule:
