@@ -14,6 +14,9 @@ node{
     }
 
     stage("Serverless/Cloudformation"){
+
+        sh("echo ${AWS_VPC}")
+
         if(params.isServerlessActive){
             dir("serverless"){
                 sh("sudo SLS_DEBUG=* sls deploy -v")
