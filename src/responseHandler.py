@@ -8,7 +8,7 @@ responseView = Blueprint('responseView', __name__)
 
 responses = dict()
 
-@responseView.route('/lambda-response/<deviceId', methods=['POST'])
+@responseView.route('/lambda-response/<deviceId>', methods=['POST'])
 def responseDevice(deviceId):
 
     response = json.loads(request.data)
