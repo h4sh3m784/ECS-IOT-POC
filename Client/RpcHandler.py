@@ -16,7 +16,7 @@ class RpcHandler:
         self.que = []
         self.processing = []
 
-        self.exitProgram = False
+        self.exit_program = False
 
         #Start new threading to process the request in the que.
         processThread = threading.Thread(target=self.process_rpc_calls, args=[])
@@ -40,14 +40,12 @@ class RpcHandler:
         return self.request_result()
 
     def process_rpc_calls(self):
-        while not self.exitProgram:
-            
+        while not self.exit_program:
             #Check if the main thread is still alive, if not, it will exit the loop.
             self.is_main_thread_alive()
 
             #Check if the que is not empty
-            if(len(self.que) > 0):
-                
+            if len(self.que) > 0:
                 #Get the first request in the que
                 request = self.que[0]
 
