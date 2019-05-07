@@ -19,7 +19,7 @@ node{
 
         if(params.isServerlessActive){
             dir("serverless"){
-                sh("sudo SLS_DEBUG=* sls deploy -v")
+                sh("sudo SLS_DEBUG=* sls deploy -v --force")
             }
         }
     }
