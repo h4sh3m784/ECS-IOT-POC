@@ -72,10 +72,10 @@ resources:
                     Resource: "*"
 
     #ECS Cluster
-    DevCluster:
+    WebServerCluster:
       Type: AWS::ECS::Cluster
       Properties:
-        ClusterName: "DevCluster"
+        ClusterName: "WebServerCluster"
 
     #ECR Repository
     WebInterfaceRepo:
@@ -147,9 +147,9 @@ resources:
     #ECS Service
     WebServerService:
       Type: "AWS::ECS::Service"
-      DependsOn: ["DevCluster","WebInterfaceTaskDefinition","ECSSecurityGroup", "WebServerLoadBalancerListener"]
+      DependsOn: ["WebServerCluster","WebInterfaceTaskDefinition","ECSSecurityGroup", "WebServerLoadBalancerListener"]
       Properties:
-        Cluster: !Ref DevCluster
+        Cluster: !Ref WebServerCluster
         DesiredCount: 2
         LaunchType: "FARGATE"
         LoadBalancers:
@@ -225,7 +225,7 @@ resources:
           Fn::Join:
             - "/"
             - - service
-              - !Ref DevCluster
+              - !Ref WebServerCluster
               - !GetAtt WebServerService.Name
         RoleARN: !GetAtt WebServerAutoScalingRole.Arn
         ScalableDimension: "ecs:service:DesiredCount"
@@ -284,7 +284,7 @@ resources:
         AlarmName: "ecs-webserver->=30%-alarm"
         ComparisonOperator: "GreaterThanThreshold" #required
         Dimensions:
-          - Name: !Ref DevCluster
+          - Name: !Ref WebServerCluster
             Value: !Ref WebServerService
         EvaluationPeriods: 2
         MetricName: CPUUtilization
@@ -304,7 +304,7 @@ resources:
         AlarmName: "ecs-webserver-<=20%-alarm"
         ComparisonOperator: "LowerThanThreshold" #required
         Dimensions:
-          - Name: !Ref DevCluster
+          - Name: !Ref WebServerCluster
             Value: !Ref WebServerService
         EvaluationPeriods: 2
         MetricName: CPUUtilization
