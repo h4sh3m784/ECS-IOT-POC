@@ -8,7 +8,7 @@ requestApp = Flask(__name__)
 requestApp.register_blueprint(requestHandler.requestView)
 
 responseApp = Flask(__name__)
-requestApp.request_blueprint(responseHandler.responseView)
+requestApp.register_blueprint(responseHandler.responseView)
 
 def runRequestApp():
     requestApp.run(host='0.0.0.0', port=80)

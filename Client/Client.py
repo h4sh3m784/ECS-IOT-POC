@@ -35,7 +35,7 @@ def response_callback(client, userdata, message):
     p_thread.start()
 
 def rpc_callback_thread(message):
-    rpcResult = handler.request(message)
+    rpcResult = handler.rpc_request(message)
     myAWSIoTMQTTClient.publish(publishTopic, rpcResult, 0)
     
 def rpc_callback(client,userdata,message):
