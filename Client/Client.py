@@ -8,7 +8,6 @@ import uuid
 
 from RpcHandler import RpcHandler
 
-
 from threading import Thread
 from time import sleep
 
@@ -86,4 +85,5 @@ myAWSIoTMQTTClient.subscribe(subRpcTopic,0,rpc_callback)
 
 #Wait for messages.
 while True:
-        sleep(100000)
+        print("waiting..")
+        sleep(1)
