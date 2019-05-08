@@ -24,6 +24,7 @@ def publish_response_thread(message):
     # #Publish to Basic Ingest
     # xray_recorder.begin_segment("Device-App-Segment")
     # xray_recorder.begin_subsegment("Device-App-Publish-SubSegment")
+    print(message.payload)
     myAWSIoTMQTTClient.publish(publishTopic, message.payload, 0)
     # xray_recorder.end_subsegment()
     # xray_recorder.end_segment()

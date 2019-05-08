@@ -105,6 +105,8 @@ resources:
             PortMappings:
               - ContainerPort: 80
                 Protocol: "tcp"
+              - ContainerPort: 8080
+                Protocol: "tcp"
 
     #TargetGroup
     WebServerTargetGroup:
