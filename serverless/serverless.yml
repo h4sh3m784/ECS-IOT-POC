@@ -305,7 +305,7 @@ resources:
           - !Ref "ScaleDown"
         AlarmDescription: "Scaling down alarm based on CPU metrics"
         AlarmName: "ecs-webserver-<=20%-alarm"
-        ComparisonOperator: "LowerThanThreshold" #required
+        ComparisonOperator: "LessThanThreshold" #required
         Dimensions:
           - Name: !Ref WebServerCluster
             Value: !Ref WebServerService
