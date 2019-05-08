@@ -148,7 +148,7 @@ resources:
     #ECS Service
     WebServerService:
       Type: "AWS::ECS::Service"
-      DependsOn: ["WebServerCluster","WebInterfaceTaskDefinition","ECSSecurityGroup"]
+      DependsOn: ["WebServerCluster","WebInterfaceTaskDefinition","ECSSecurityGroup", "HTTPListener"]
       Properties:
         Cluster: !Ref WebServerCluster
         DesiredCount: 2
