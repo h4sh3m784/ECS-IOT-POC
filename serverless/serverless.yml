@@ -134,7 +134,7 @@ resources:
         Type: "application"
 
     #LoadBalancer listener
-    WebServerLoadBalancerListener:
+    HTTPListener:
       Type: "AWS::ElasticLoadBalancingV2::Listener"
       Properties:
         DefaultActions:
@@ -147,7 +147,7 @@ resources:
     #ECS Service
     WebServerService:
       Type: "AWS::ECS::Service"
-      DependsOn: ["WebServerCluster","WebInterfaceTaskDefinition","ECSSecurityGroup", "WebServerLoadBalancerListener"]
+      DependsOn: ["WebServerCluster","WebInterfaceTaskDefinition","ECSSecurityGroup"]
       Properties:
         Cluster: !Ref WebServerCluster
         DesiredCount: 2
