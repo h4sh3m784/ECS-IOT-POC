@@ -51,7 +51,7 @@ def requestRPC():
 
     requestBody = json.loads(request.data)
 
-    topic = "api/iot/rpc" + request['clientId']
+    topic = "api/iot/rpc" + requestBody['clientId']
     
     id = publish_to_topic(topic, requestBody)
 
