@@ -1,31 +1,23 @@
-import threading
 from flask import Flask
+from threading import Thread
 
-# My typical setup for a Flask App.
-# ./media is a folder that holds my JS, Imgs, CSS, etc.
-app1 = Flask(__name__, static_folder='./media')
-app2 = Flask(__name__, static_folder='./media')
+import requestHandler
+import responseHandler
 
-@app1.route('/')
-def index1():
-    return 'Hello World 1'
+requestApp = Flask(__name__)
+requestApp.register_blueprint(requestHandler.requestView)
 
-@app2.route('/')
-def index2():
-    return 'Hello World 2'
+responseApp = Flask(__name__)
+responseApp.register_blueprint(responseHandler.responseView)
 
-# With Multi-Threading Apps, YOU CANNOT USE DEBUG!
-# Though you can sub-thread.
-def runFlaskApp1():
-    app1.run(host='127.0.0.1', port=80, debug=False, threaded=True)
+def runRequestApp():
+    requestApp.run(host='0.0.0.0', port=80)
 
-def runFlaskApp2():
-    app2.run(host='127.0.0.1', port=8080, debug=False, threaded=True)
+def runResponseApp():
+    responseApp.run(host='0.0.0.0', port=8080)
 
-
-if __name__ == '__main__':
-    # Executing the Threads seperatly.
-    t1 = threading.Thread(target=runFlaskApp1)
-    t2 = threading.Thread(target=runFlaskApp2)
+if __name__ == "__main__":
+    t1 = Thread(target=runRequestApp)
+    t2 = Thread(target=runResponseApp)
     t1.start()
     t2.start()
