@@ -34,6 +34,7 @@ def publish_to_topic(topic,message):
     
     id = str(uuid.uuid4())
 
+    mesage['Endpoint'] = info['Endpoint']
     message['RequestId'] = id
 
     message = json.dumps(message)
@@ -46,12 +47,12 @@ def publish_to_topic(topic,message):
 def healthCheck():
     return 'OK'
 
-@requestView.route('/rpc', methods=['POST'])
-def requestRPC():
+@requestView.route('/rpc/<deviceId>', methods=['POST'])
+def requestRPC(deviceId):
 
     requestBody = json.loads(request.data)
 
-    topic = "api/iot/rpc" + requestBody['clientId']
+    topic = "api/iot/rpc" + deviceId
     
     id = publish_to_topic(topic, requestBody)
 
@@ -69,7 +70,6 @@ def requestDevice(deviceId):
     message = {
         "DeviceId" : deviceId,
         "Message": requestBody,
-        'Endpoint': info['Endpoint'] + deviceId
     }
 
     id = publish_to_topic(topic, message)

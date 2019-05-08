@@ -8,13 +8,10 @@ responseView = Blueprint('responseView', __name__)
 
 responses = dict()
 
-@responseView.route('/lambda-response/<deviceId>', methods=['POST'])
-def responseDevice(deviceId):
-
+@responseView.route('/lambda-response', methods=['POST'])
+def responseDevice():
     response = json.loads(request.data)
-
     key = response['RequestId']
-
     if key in requestHandler.events: #Check if event hasn't time-out
         responses[key] = response #Save response
         requestHandler.events[key].set() #Set the waiting event

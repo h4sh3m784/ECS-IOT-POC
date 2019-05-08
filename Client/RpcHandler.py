@@ -29,9 +29,11 @@ class RpcClient:
         result = self.add_rpc_que(request)
 
         #Check if result is an event, else it is an error.
-        if isinstance(result,threading.Event):
+        if not isinstance(result,threading._Event):
             return result
         
+        print(type(result))
+
         #Wait for the process to finish
         result.wait()
         #Remove the process
