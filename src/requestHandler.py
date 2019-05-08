@@ -49,11 +49,11 @@ def healthCheck():
 @requestView.route('/rpc', methods=['POST'])
 def requestRPC():
 
-    request = json.loads(request.data)
+    requestBody = json.loads(request.data)
 
     topic = "api/iot/rpc" + request['clientId']
     
-    id = publish_to_topic(topic, request)
+    id = publish_to_topic(topic, requestBody)
 
     wait_for_event(60, id)
 
