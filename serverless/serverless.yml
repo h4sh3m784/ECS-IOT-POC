@@ -99,6 +99,13 @@ resources:
             - FARGATE
           ContainerDefinitions:
           - Name: "WebInterface"
+            LogCOnfiguration:
+              LogDriver: "awslogs"
+              Options:
+                awslogs-group": "/ecs/webapi"
+                awslogs-region": "eu-west-1"
+                awslogs-stream-prefix": "ecs"
+                
             Image: !Sub '${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${WebInterfaceRepo}:latest'
             Cpu: 192
             MemoryReservation: 512

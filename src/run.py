@@ -19,5 +19,5 @@ def runResponseApp():
 if __name__ == "__main__":
     t1 = Thread(target=runRequestApp())
     t2 = Thread(target=runResponseApp())
-    t1.start()
     t2.start()
+    t1.start()
