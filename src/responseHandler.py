@@ -13,7 +13,7 @@ def responseDevice(deviceId):
 
     response = json.loads(request.data)
 
-    key = response['MessageInfo']['RequestId']
+    key = response['RequestId']
 
     if key in requestHandler.events: #Check if event hasn't time-out
         responses[key] = response #Save response
