@@ -133,9 +133,9 @@ resources:
         Subnets: ["subnet-c6211f9d", "subnet-33e21f55"]
         Type: "application"
 
+    #LoadBalancer listener
     WebServerLoadBalancerListener:
       Type: "AWS::ElasticLoadBalancingV2::Listener"
-      DependsOn: ["WebServerTargetGroup"]
       Properties:
         DefaultActions:
           - Type: "forward"
