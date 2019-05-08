@@ -34,7 +34,7 @@ def publish_to_topic(topic,message):
     
     id = str(uuid.uuid4())
 
-    mesage['Endpoint'] = info['Endpoint']
+    message['Endpoint'] = info['Endpoint']
     message['RequestId'] = id
 
     message = json.dumps(message)
@@ -67,12 +67,7 @@ def requestDevice(deviceId):
 
     topic = "api/iot/pub/" + deviceId
     
-    message = {
-        "DeviceId" : deviceId,
-        "Message": requestBody,
-    }
-
-    id = publish_to_topic(topic, message)
+    id = publish_to_topic(topic, requestBody)
     
     wait_for_event(10,id)
 
