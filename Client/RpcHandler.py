@@ -107,10 +107,10 @@ class RpcClient:
         #Create id and event, add them to the request dictionary
         id = str(uuid4())
         event =  threading.Event()
-        request['info'] = {'id': id, "event" : event}
+        requestDict['info'] = {"id": id, "event" : event}
 
         #Add request to the que
-        self.que.append(request)
+        self.que.append(requestDict)
 
         return event
 

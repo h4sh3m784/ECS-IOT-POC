@@ -34,7 +34,7 @@ def publish_to_topic(topic,message):
     
     id = str(uuid.uuid4())
 
-    message['Endpoint'] = info['Endpoint']
+    message['Endpoint'] = endpoint
     message['RequestId'] = id
 
     message = json.dumps(message)

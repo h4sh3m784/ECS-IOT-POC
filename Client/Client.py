@@ -36,11 +36,15 @@ def response_callback(client, userdata, message):
     p_thread.start()
 
 def rpc_callback_thread(message):
-    rpcResult = handler.rpc_request(message)
-    myAWSIoTMQTTClient.publish(publishTopic, rpcResult, 0)
+        print("-----------------------------------------")
+        print(message)
+        tmp = json.loads(message)
+        tmp['RcpCall'] = handler.rpc_request(message)
+        print(json.dumps(tmp))
+        myAWSIoTMQTTClient.publish(publishTopic, json.dumps(tmp), 0)
     
 def rpc_callback(client,userdata,message):
-    rpcThread = Thread(target=rpc_callback_thread, args=(message,))
+    rpcThread = Thread(target=rpc_callback_thread, args=(message.payload,))
     rpcThread.start()
 
 parser = argparse.ArgumentParser()

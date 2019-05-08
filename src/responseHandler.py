@@ -3,6 +3,9 @@ import requestHandler
 
 from flask import Blueprint
 from flask import request
+import logging
+
+logging.basicConfig(level=logging.BASIC_FORMAT)
 
 responseView = Blueprint('responseView', __name__)
 
