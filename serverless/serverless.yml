@@ -136,7 +136,7 @@ resources:
     #LoadBalancer listener
     HTTPListener:
       Type: "AWS::ElasticLoadBalancingV2::Listener"
-      DependsOn: ["WebServerLoadBalancer"]
+      DependsOn: ["WebServerLoadBalancer", "WebServerTargetGroup"]
       Properties:
         DefaultActions:
           - Type: "forward"
