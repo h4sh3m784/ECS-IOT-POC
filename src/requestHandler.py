@@ -38,7 +38,7 @@ def publish_to_topic(topic,message):
 
     message = json.dumps(message)
 
-    client.publish(topic=topic,qos=0,playload=message.encode())
+    client.publish(topic=topic,qos=0,payload=message.encode())
 
     return id
 
