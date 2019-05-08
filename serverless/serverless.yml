@@ -128,7 +128,7 @@ resources:
       Type: AWS::ElasticLoadBalancingV2::LoadBalancer
       Properties:
         IpAddressType: "ipv4"
-        Name: "WebServerApplicationLoadBalancer"
+        Name: "ECS-Webserver-ALB"
         Scheme: "internet-facing"
         Subnets: ["subnet-c6211f9d", "subnet-33e21f55"]
         Type: "application"
@@ -136,6 +136,7 @@ resources:
     #LoadBalancer listener
     HTTPListener:
       Type: "AWS::ElasticLoadBalancingV2::Listener"
+      DependsOn: ["WebServerLoadBalancer"]
       Properties:
         DefaultActions:
           - Type: "forward"
