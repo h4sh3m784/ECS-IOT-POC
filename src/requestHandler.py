@@ -26,7 +26,7 @@ def response(id):
 
 def wait_for_event(time, id):
     event = Event() #Create new event
-    events[requestId] = event #Save the event
+    events[id] = event #Save the event
     event.wait(timeout=time) #Wait for event to be set() in the responseHandler.py
     del events[id]
 

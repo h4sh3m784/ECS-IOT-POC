@@ -1,32 +1,32 @@
 from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient
-from aws_xray_sdk.core import xray_recorder
+# from aws_xray_sdk.core import xray_recorder
 
 import logging
 import argparse
 import json
 import uuid
 
-from RpcHandler import RpcHandler
+from RpcHandler import RpcClient
 
 from threading import Thread
 from time import sleep
 
-xray_recorder.configure(
-    sampling_rules=False,
-    service="Device-App"
-)
+# xray_recorder.configure(
+#     sampling_rules=False,
+#     service="Device-App"
+# )
 
-handler = RpcHandler()
+handler = RpcClient()
 
 publishTopic = "$aws/rules/ECSIOTRULE"
 
 def publish_response_thread(message):
-    #Publish to Basic Ingest
-    xray_recorder.begin_segment("Device-App-Segment")
-    xray_recorder.begin_subsegment("Device-App-Publish-SubSegment")
+    # #Publish to Basic Ingest
+    # xray_recorder.begin_segment("Device-App-Segment")
+    # xray_recorder.begin_subsegment("Device-App-Publish-SubSegment")
     myAWSIoTMQTTClient.publish(publishTopic, message.payload, 0)
-    xray_recorder.end_subsegment()
-    xray_recorder.end_segment()
+    # xray_recorder.end_subsegment()
+    # xray_recorder.end_segment()
     print("message send..")
 
 def response_callback(client, userdata, message):
