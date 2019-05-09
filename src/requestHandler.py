@@ -46,7 +46,7 @@ def publish_to_topic(topic,message):
 
 def build_cors_response(response):
     response = make_response()
-    response.headers.add('Access-Control-Allow-Origin', "*")
+    response.headers.add('Access-Control-Allow-Origin', "https://d1gdvmfal4vwsv.cloudfront.net")
     response.headers.add('Access-Control-Allow-Credentials', True)
     return response
 
