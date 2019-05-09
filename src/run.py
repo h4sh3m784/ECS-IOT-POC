@@ -1,13 +1,16 @@
 from flask import Flask
+from flask_cors import CORS
 from threading import Thread
 
 import requestHandler
 import responseHandler
 
 requestApp = Flask(__name__)
+CORS(requestApp)
 requestApp.register_blueprint(requestHandler.requestView)
 
 responseApp = Flask(__name__)
+CORS(responseApp)
 responseApp.register_blueprint(responseHandler.responseView)
 
 def runRequestApp():

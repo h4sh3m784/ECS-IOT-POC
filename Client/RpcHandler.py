@@ -96,7 +96,7 @@ class RpcClient:
                     return self.error('no function key in json')
                 if 'parameters' in requestDict['Call']:
                     if requestDict['Call']['parameters'] == '':
-                        return self.error('parameters key is empopty in json')
+                        return self.error('parameters key is empty in json')
                 else: 
                     return self.error("no parameters keys in json")
             else: return self.error("No Call key in json")
@@ -128,4 +128,3 @@ class RpcClient:
                 if i.name == "MainThread":
                     if not i.is_alive():
                         self.exitProgram = True
-

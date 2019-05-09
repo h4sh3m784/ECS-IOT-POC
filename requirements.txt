@@ -1,4 +1,5 @@
 boto3
 flask
 flask_restful
+flask-cors
 requests
