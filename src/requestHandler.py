@@ -4,7 +4,9 @@ import uuid
 
 from flask import Blueprint
 from flask import request
+from flask import Response
 from flask import make_response
+
 from threading import Event
 from config import info
 import responseHandler
@@ -44,12 +46,6 @@ def publish_to_topic(topic,message):
 
     return id
 
-def build_cors_response(response):
-    response = make_response()
-    response.headers.add('Access-Control-Allow-Origin', "https://d1gdvmfal4vwsv.cloudfront.net")
-    response.headers.add('Access-Control-Allow-Credentials', 'true')
-    return response
-
 @requestView.route('/healthcheck',methods=['POST'])
 def healthCheck():
     return 'OK'
@@ -64,8 +60,11 @@ def requestRPC(deviceId):
     id = publish_to_topic(topic, requestBody)
 
     wait_for_event(60, id)
-
-    return build_cors_response(response(id))
+    
+    resp = make_response(response(id))
+    resp.headers['Access-Control-Allow-Origin'] =  "https://d1gdvmfal4vwsv.cloudfront.net"
+    resp.headers['Access-Control-Allow-Credentials'] = "true"
+    return resp
 
 @requestView.route('/device/<deviceId>', methods=['POST'])
 def requestDevice(deviceId):
