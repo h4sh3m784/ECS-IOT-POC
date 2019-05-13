@@ -25,7 +25,7 @@ resources:
         TopicRulePayload:
           RuleDisabled: "false"
           Sql: >-
-            SELECT * FROM '$aws/events/presence/#'
+            SELECT clientId, eventType,versionNumber FROM '$aws/events/presence/#'
           Actions:
             -
               Lambda:

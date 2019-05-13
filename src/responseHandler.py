@@ -14,6 +14,7 @@ responses = dict()
 @responseView.route('/lambda-response', methods=['POST'])
 def responseDevice():
     response = json.loads(request.data)
+    logging.debug("YO WTF IS GOING ON??!!!")
     logging.debug(response)
     key = response['RequestId']
     if key in requestHandler.events: #Check if event hasn't time-out

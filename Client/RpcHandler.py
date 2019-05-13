@@ -6,6 +6,11 @@ from uuid import uuid4
 
 import logging
 
+"""
+To access the Use 
+"""
+
+
 class RpcClient:
 
     def __init__(self):
@@ -62,7 +67,7 @@ class RpcClient:
                     self.processing.append(id)
                     #Start call execution
                     self.result[id] = self.handle_rpc_call(request)
-                    #After call execution if finished, set the event.
+                    #After call execution is finished, set the event.
                     event.set()
     
     def handle_rpc_call(self, request):
@@ -81,10 +86,8 @@ class RpcClient:
     def add_rpc_que(self,request):
 
         try:
-
             #Check if json string is correct
             #And contains everything needed
-
             logging.debug(request)
             requestDict = json.loads(request)
 
