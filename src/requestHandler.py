@@ -46,7 +46,7 @@ def publish_to_topic(topic,message):
 
     return id
 
-@requestView.route('/healthcheck',methods=['POST'])
+@requestView.route('/healthcheck',methods=['GET'])
 def healthCheck():
     return 'OK'
 
