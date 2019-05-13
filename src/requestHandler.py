@@ -1,6 +1,7 @@
 import boto3
 import json
 import uuid
+import logging
 
 from flask import Blueprint
 from flask import request
@@ -10,6 +11,8 @@ from flask import make_response
 from threading import Event
 from config import info
 import responseHandler
+
+logging.basicConfig(level=logging.DEBUG)
 
 requestView = Blueprint('requestView', __name__)
 
@@ -31,6 +34,7 @@ def wait_for_event(time, id):
     event = Event() #Create new event
     events[id] = event #Save the event
     event.wait(timeout=time) #Wait for event to be set() in the responseHandler.py
+    logging.debug("TIME-OUT DONE")
     del events[id]
 
 def publish_to_topic(topic,message):
@@ -55,6 +59,8 @@ def requestRPC(deviceId):
 
     requestBody = json.loads(request.data)
 
+    logging.debug(requestBody)
+
     topic = "api/iot/rpc" + deviceId
     
     id = publish_to_topic(topic, requestBody)
@@ -64,6 +70,9 @@ def requestRPC(deviceId):
     resp = make_response(response(id))
     resp.headers['Access-Control-Allow-Origin'] =  "https://d1gdvmfal4vwsv.cloudfront.net"
     resp.headers['Access-Control-Allow-Credentials'] = "true"
+
+    logging.debug("RETURNING MESSAGE")
+
     return resp
 
 @requestView.route('/device/<deviceId>', methods=['POST'])
