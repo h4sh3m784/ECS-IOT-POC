@@ -83,10 +83,10 @@ myAWSIoTMQTTClient.configureMQTTOperationTimeout(5)  # 5 sec
 myAWSIoTMQTTClient.connect()
 
 messageTopic = "api/iot/pub/" + deviceId
-subRpcTopic = "api/iot/rpc" + deviceId
+subscribe_rpc_topic = "api/iot/rpc" + deviceId
 
 myAWSIoTMQTTClient.subscribe(messageTopic, 0, response_callback)
-myAWSIoTMQTTClient.subscribe(subRpcTopic,0,rpc_callback)
+myAWSIoTMQTTClient.subscribe(subscribe_rpc_topic,0,rpc_callback)
 
 #Wait for messages.
 while True:
