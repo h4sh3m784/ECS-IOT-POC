@@ -22,7 +22,7 @@ resources:
       DependsOn: ["WebServerLoadBalancer"]
       Properties:
         AliasTarget:
-          DNSName: !Ref WebServerLoadBalancer
+          DNSName: !GetAtt WebServerLoadBalancer.DNSName
           EvaluateTargetHealth: "false"
           HostedZoneId: "ZV231HDRL6HIS"
         HostedZoneId: "ZV231HDRL6HIS"
