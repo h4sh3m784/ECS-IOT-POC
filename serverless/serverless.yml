@@ -178,7 +178,6 @@ resources:
         LoadBalancerArn: !Ref WebServerLoadBalancer
         Port: 443
         Protocol: "HTTPS"
-    
   
     #ECS Service
     WebServerService:
