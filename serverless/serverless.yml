@@ -24,7 +24,7 @@ resources:
         AliasTarget:
           DNSName: !GetAtt WebServerLoadBalancer.DNSName
           EvaluateTargetHealth: "false"
-          HostedZoneId: !GetAtt WebServerLoadBalancer.CanonicalHostedZoneNameID
+          HostedZoneId: "Z32O12XQLNTSW2"
         HostedZoneId: "ZV231HDRL6HIS"
         Name: 'webrpc.d2c-merapar.toon.eu.'
         Type: "A"
