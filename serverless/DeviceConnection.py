@@ -55,9 +55,7 @@ def is_message_out_of_order(event):
     
 
 def lambda_handler(event, context):
-
     eventType = event['eventType']
-    
     #Check if device pressance message is out or order
     if not is_message_out_of_order(event):
         if eventType == "connected":

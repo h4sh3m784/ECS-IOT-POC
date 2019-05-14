@@ -17,6 +17,17 @@ functions:
 resources:
   Resources:
     
+    ApplicationLoadBalancerRecordSet:
+      Type: "AWS::Route53::RecordSet"
+      DependsOn: ["WebServerLoadBalancer"]
+      Properties:
+        AliasTarget:
+          DNSName: !GetAtt WebServerLoadBalancer.Name
+          EvaluateTargetHealth: "false"
+          HostedZoneId: "ZV231HDRL6HIS"
+        Name: 'webrpc.d2c-merapar.toon.eu.'
+        Type: "A"
+
     #IoT RPC Device connection Rule
     IoTDeviceConnectionDymamoDBRule:
       Type: AWS::IoT::TopicRule
@@ -153,11 +164,26 @@ resources:
         LoadBalancerArn: !Ref WebServerLoadBalancer
         Port: 80
         Protocol: "HTTP"
+    
+    #LoadBalancer HTTPS Listener
+    HTTPSListener:
+      Type: "AWS::ElasticLoadBalancingV2::Listener"
+      DependsOn: ["WebServerLoadBalancer", "WebServerTargetGroup"]
+      Properties:
+        Certificates:
+          CertificateArn: "arn:aws:acm:eu-west-1:740976047420:certificate/ae83eeab-0de3-45e7-aeca-cedcb1181d9b"
+        DefaultActions:
+          - Type: "forward"
+            TargetGroupArn: !Ref WebServerTargetGroup
+        LoadBalancerArn: !Ref WebServerLoadBalancer
+        Port: 443
+        Protocol: "HTTPS"
+    
   
     #ECS Service
     WebServerService:
       Type: "AWS::ECS::Service"
-      DependsOn: ["WebServerCluster","WebInterfaceTaskDefinition","ECSSecurityGroup", "HTTPListener"]
+      DependsOn: ["WebServerCluster","WebInterfaceTaskDefinition","ECSSecurityGroup", "HTTPListener", "HTTPSListener"]
       Properties:
         Cluster: !Ref WebServerCluster
         DesiredCount: 2
