@@ -22,7 +22,7 @@ resources:
       DependsOn: ["WebServerLoadBalancer"]
       Properties:
         AliasTarget:
-          DNSName: !GetAtt WebServerLoadBalancer.Name
+          DNSName: !Ref WebServerLoadBalancer
           EvaluateTargetHealth: "false"
           HostedZoneId: "ZV231HDRL6HIS"
         Name: 'webrpc.d2c-merapar.toon.eu.'
