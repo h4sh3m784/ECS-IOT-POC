@@ -25,6 +25,7 @@ resources:
           DNSName: !Ref WebServerLoadBalancer
           EvaluateTargetHealth: "false"
           HostedZoneId: "ZV231HDRL6HIS"
+        HostedZoneId: "ZV231HDRL6HIS"
         Name: 'webrpc.d2c-merapar.toon.eu.'
         Type: "A"
 
