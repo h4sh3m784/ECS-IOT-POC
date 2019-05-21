@@ -321,9 +321,6 @@ resources:
         AlarmDescription: "scaling up alarm based on CPU metrics"
         AlarmName: "ecs-webserver->=30%-alarm"
         ComparisonOperator: "GreaterThanThreshold" #required
-        Dimensions:
-          - Name: !Ref WebServerCluster
-            Value: !Ref WebServerService
         EvaluationPeriods: 2
         MetricName: CPUUtilization
         Namespace: "AWS/ECS"
@@ -341,9 +338,6 @@ resources:
         AlarmDescription: "Scaling down alarm based on CPU metrics"
         AlarmName: "ecs-webserver-<=20%-alarm"
         ComparisonOperator: "LessThanThreshold" #required
-        Dimensions:
-          - Name: !Ref WebServerCluster
-            Value: !Ref WebServerService
         EvaluationPeriods: 2
         MetricName: CPUUtilization
         Namespace: "AWS/ECS"
